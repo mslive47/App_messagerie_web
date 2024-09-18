@@ -1,5 +1,5 @@
-import { Component, output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, EventEmitter, Output, output } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserCredentials } from '../../model/user-credentials';
 
 @Component({
@@ -11,15 +11,28 @@ import { UserCredentials } from '../../model/user-credentials';
 })
 export class LoginFormComponent {
   loginForm = this.fb.group({
-    username: '',
-    password: '',
+    username: ['', Validators.required],
+    password: ['', Validators.required],
   });
 
-  login = output<UserCredentials>();
+  showInvalidFormMessage = false;
+
+@Output() login = new EventEmitter <UserCredentials>();
 
   constructor(private fb: FormBuilder) {}
 
   onLogin() {
     // À faire
+    if (this.loginForm.valid) {
+      const credentials: UserCredentials = {
+        username: this.loginForm.value.username!,
+        password: this.loginForm.value.password!,
+      };
+      this.login.emit(credentials);
+      this.loginForm.reset();
+      this.showInvalidFormMessage = false;
+    } else {
+      this.showInvalidFormMessage = true;
+    }
   }
 }

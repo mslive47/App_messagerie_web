@@ -1,2 +1,2 @@
-CODE_PERMANENT_1, Nom de l'équipier 1
-CODE_PERMANENT_2, Nom de l'équipier 2
+MBUS17048809, Salomon Mbungu
+DJET18078400, Djeutchou Tapja Thierry Igor 
