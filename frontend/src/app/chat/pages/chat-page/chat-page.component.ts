@@ -5,6 +5,7 @@ import { AuthenticationService } from 'src/app/login/services/authentication.ser
 import { Message } from '../../model/message.model';
 import { MessagesService } from '../../services/messages.service';
 import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 
 
 @Component({
@@ -12,7 +13,7 @@ import { Router } from '@angular/router';
   templateUrl: './chat-page.component.html',
   styleUrls: ['./chat-page.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, MatButtonModule],
 })
 export class ChatPageComponent {
   messages = signal<Message[]>([]);
