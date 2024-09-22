@@ -2,19 +2,21 @@
   <form class="form" (ngSubmit)="onLogin()" [formGroup]="loginForm">
     <div>
       <div>
-        <label
-          >Nom d'usager:
-          <input name="username" type="text" formControlName="username" />
-        </label>
+        <mat-form-field>
+          <mat-label>Nom d'utilisateur</mat-label>
+          <input matInput name="username" type="text" formControlName="username" />
+        </mat-form-field>
       </div>
       <div>
-        <label
-          >Mot de passe:
-          <input name="password" type="password" formControlName="password"
-        /></label>
+        <mat-form-field>
+        <mat-label>Nom d'utilisateur</mat-label>
+          <input matInput name="password" type="password" formControlName="password"/>
+        </mat-form-field>
       </div>
     </div>
-    <div><button type="submit">Connexion</button></div>
+    <div>
+      <button mat-flat-button type="submit">Connexion</button>
+    </div>
   </form>
 </div>
 

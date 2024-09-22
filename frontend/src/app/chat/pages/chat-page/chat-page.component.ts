@@ -1,9 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { Message } from '../../model/message.model';
 import { MessagesService } from '../../services/messages.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-chat-page',
@@ -20,11 +22,19 @@ export class ChatPageComponent {
     msg: '',
   });
 
+
   constructor(
     private fb: FormBuilder,
     private messagesService: MessagesService,
-    private authenticationService: AuthenticationService
-  ) {}
+    private authenticationService: AuthenticationService,
+    private router: Router // Inject Router for navigation
+  ) {
+    // Set up effect to listen for changes in the MessagesService messages signal
+    effect(() => {
+      const updatedMessages = this.messagesService.getMessages();  // Get messages signal from service
+      this.messages.set(updatedMessages());  // Update the local signal with the data from the service
+    }, { allowSignalWrites: true });  // Enable signal writes within this effect)
+  }
 
   onPublishMessage() {
     if (
@@ -32,6 +42,8 @@ export class ChatPageComponent {
       this.messageForm.valid &&
       this.messageForm.value.msg
     ) {
+      console.log('Envoi de message :', this.messageForm.value.msg);
+
       this.messagesService.postMessage({
         text: this.messageForm.value.msg,
         username: this.username()!,
@@ -57,5 +69,10 @@ export class ChatPageComponent {
 
   onLogout() {
     // À faire
+    // Clear authentication (e.g., remove token from localStorage or session)
+    this.authenticationService.logout();  
+    
+    // Redirect to the login page
+    this.router.navigate(['/login']);
   }
 }
