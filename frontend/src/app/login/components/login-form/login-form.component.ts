@@ -1,5 +1,5 @@
 import { Component, output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserCredentials } from '../../model/user-credentials';
 
 @Component({
@@ -11,9 +11,12 @@ import { UserCredentials } from '../../model/user-credentials';
 })
 export class LoginFormComponent {
   loginForm = this.fb.group({
-    username: '',
-    password: '',
+    username: ['', Validators.required], //Ajouter validators  
+    password: ['', Validators.required]
   });
+
+checkName : boolean = false;
+checkPassWord : boolean = false;
 
   login = output<UserCredentials>();
 
@@ -21,5 +24,31 @@ export class LoginFormComponent {
 
   onLogin() {
     // À faire
+    const credentials: UserCredentials = {
+      username: this.loginForm.value.username!,
+      password: this.loginForm.value.password!,
+    };
+    this.loginForm.reset();
+    this.login.emit(credentials);
+  }
+
+  verifyName() {
+    if (this.loginForm.value.username == '') {
+      this.checkName = true;
+    }  
+  }
+
+  resetName() {
+    this.checkName = false;
+  }
+
+  verifyPassWord() {
+    if(this.loginForm.value.password == '') {
+      this.checkPassWord = true;
+    }
+  }
+
+  resetPass() {
+    this.checkPassWord = false;
   }
 }

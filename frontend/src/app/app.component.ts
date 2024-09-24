@@ -9,5 +9,5 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
 })
 export class AppComponent {
-  title = 'app-chat';
+  title = '1NF-CH4T';
 }
