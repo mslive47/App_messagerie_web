@@ -1,7 +1,6 @@
 import { Component, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
-import { Message } from '../model/message.model';
 import { MessagesService } from '../services/messages.service';
 import { MatInputModule } from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon'
@@ -15,7 +14,6 @@ import {MatIconModule} from '@angular/material/icon'
 })
 export class NewMessageFormComponent {
 
-  //messages = this.messagesService.getMessages();
   username = this.authenticationService.getUsername();
   scroll = output();
 

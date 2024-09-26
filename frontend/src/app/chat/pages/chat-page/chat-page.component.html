@@ -2,31 +2,5 @@
   <div class="chat-logout-button">
     <button mat-flat-button  (click)="onLogout()">Quitter</button>
   </div>
-  <!--<div class="chat-messages"> -->
-    <!--
-    <div #chatContainer class="messages">
-      @for( m of messages(); track $index; let i = $index) {
-        @if (user === m.username) {
-          <div>
-            @if(showDateHeader(messages(), i)) {
-            <h3>
-              {{ m.timestamp | date }}
-            </h3>
-            }
-            <p>
-              [{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}
-            </p>
-          </div>
-        }
-      }
-    </div>
-  -->
     <app-messages></app-messages>
-    <!--
-    <form (ngSubmit)="onPublishMessage()" [formGroup]="messageForm">
-      <input name="message" type="text" formControlName="msg" />
-      <button type="submit">></button>
-    </form>
-  -->
-  <!--</div> -->
 </div>
