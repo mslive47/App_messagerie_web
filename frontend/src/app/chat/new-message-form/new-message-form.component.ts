@@ -4,11 +4,12 @@ import { AuthenticationService } from 'src/app/login/services/authentication.ser
 import { Message } from '../model/message.model';
 import { MessagesService } from '../services/messages.service';
 import { MatInputModule } from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon'
 
 @Component({
   selector: 'app-new-message-form',
   standalone: true,
-  imports: [ReactiveFormsModule, MatInputModule],
+  imports: [ReactiveFormsModule, MatInputModule, MatIconModule],
   templateUrl: './new-message-form.component.html',
   styleUrl: './new-message-form.component.css'
 })
