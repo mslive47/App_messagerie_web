@@ -5,36 +5,37 @@ import { AuthenticationService } from 'src/app/login/services/authentication.ser
 import { Message } from '../../model/message.model';
 import { MessagesService } from '../../services/messages.service';
 import { Router } from '@angular/router';
-import { ViewChild, ElementRef } from '@angular/core';
+//import { ViewChild, ElementRef } from '@angular/core';
+import { MessagesComponent } from '../../composants/messages/messages.component';
 
 @Component({
   selector: 'app-chat-page',
   templateUrl: './chat-page.component.html',
   styleUrls: ['./chat-page.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, MessagesComponent],
 })
 export class ChatPageComponent {
   //messages = signal<Message[]>([]);
-  messages = this.messagesService.getMessages();
-  username = this.authenticationService.getUsername();
+  //messages = this.messagesService.getMessages();
+ // username = this.authenticationService.getUsername();
 
-  @ViewChild('chatContainer') chatContainer!: ElementRef;
+  //@ViewChild('chatContainer') chatContainer!: ElementRef;
   
-  user = this.username() ?? ""
+  //user = this.username() ?? ""
 
-  messageForm = this.fb.group({
-    msg: '',
-  });
+  //messageForm = this.fb.group({
+  //  msg: '',
+  //});
 
   constructor(
-    private fb: FormBuilder,
-    private messagesService: MessagesService,
+    //private fb: FormBuilder,
+    //private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
     private router: Router
   ) {}
 
-  onPublishMessage() {
+  /*onPublishMessage() {
     if (
       this.username() &&
       this.messageForm.valid &&
@@ -47,11 +48,11 @@ export class ChatPageComponent {
       });
     }
     this.messageForm.reset();
-    this.scrollToBottom();
-  }
+    //this.scrollToBottom();
+  } */
 
   /** Afficher la date seulement si la date du message précédent est différente du message courant. */
-  showDateHeader(messages: Message[] | null, i: number) {
+  /*showDateHeader(messages: Message[] | null, i: number) {
     if (messages != null) {
       if (i === 0) {
         return true;
@@ -62,7 +63,7 @@ export class ChatPageComponent {
       }
     }
     return false;
-  }
+  } */
 
   onLogout() {
     // À faire
@@ -74,7 +75,7 @@ export class ChatPageComponent {
  
   }
 
-  scrollToBottom(): void {
-    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-  }
+  //scrollToBottom(): void {
+  //  this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+ // }
 }
