@@ -1,4 +1,5 @@
-<div #chatContainer class="messages">
+<div class="chat-messages">
+  <div #chatContainer class="messages">
     @for( m of messages(); track $index; let i = $index) {
       @if (user === m.username) {
         <div>
@@ -15,3 +16,22 @@
     }
   </div>
   <app-new-message-form (scroll)="scrollToBottom()"></app-new-message-form>
+</div>
+
+<!-- <div #chatContainer class="messages">
+    @for( m of messages(); track $index; let i = $index) {
+      @if (user === m.username) {
+        <div>
+          @if(showDateHeader(messages(), i)) {
+          <h3>
+            {{ m.timestamp | date }}
+          </h3>
+          }
+          <p>
+            [{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}
+          </p>
+        </div>
+      }
+    }
+  </div>
+  <app-new-message-form (scroll)="scrollToBottom()"></app-new-message-form> -->
