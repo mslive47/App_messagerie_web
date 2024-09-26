@@ -9,6 +9,7 @@ export class MessagesService {
 
   postMessage(message: Message): void {
     // À faire
+    this.messages.set([...this.messages(), message]);
   }
 
   getMessages(): Signal<Message[]> {
