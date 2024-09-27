@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, effect } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { Message } from '../../model/message.model';
@@ -18,12 +18,19 @@ export class MessagesComponent implements AfterViewChecked {
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
   
-  user = this.username() ?? "";
+  currentUser = this.username() ?? "";
+  firstUser: string | undefined;
 
   constructor(
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
-  ) {}
+  ) {
+    // Écouter les changements des messages et mettre à jour `firstUser` dynamiquement
+  effect(() => {
+    const firstMessage = this.messages()[0];  // Récupère le premier message
+    this.firstUser = firstMessage?.username;  // Met à jour `firstUser`
+  });
+  }
 
   /** Afficher la date seulement si la date du message précédent est différente du message courant. */
   showDateHeader(messages: Message[] | null, i: number) {

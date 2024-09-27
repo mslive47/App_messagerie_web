@@ -14,6 +14,11 @@
   padding: 20px;
 }
 
+.right {
+  align-self: flex-end;
+  text-align: right;
+}
+
 p {
   margin: 10px;
   font-size: 15px;
