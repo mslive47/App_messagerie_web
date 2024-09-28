@@ -1,7 +1,7 @@
 import { Component, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
-import { MessagesService } from '../services/messages.service';
+import { MessagesService } from '../../services/messages.service';
 import { MatInputModule } from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon'
 

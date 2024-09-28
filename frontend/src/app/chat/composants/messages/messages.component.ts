@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { Message } from '../../model/message.model';
 import { MessagesService } from '../../services/messages.service';
-import { NewMessageFormComponent } from '../../new-message-form/new-message-form.component';
+import { NewMessageFormComponent } from '../new-message-form/new-message-form.component';
 
 @Component({
   selector: 'app-messages',
