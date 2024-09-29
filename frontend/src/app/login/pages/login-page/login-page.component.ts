@@ -16,9 +16,8 @@ export class LoginPageComponent {
 
   constructor(private authService: AuthenticationService, private router: Router) {}
 
+  /** Cette méthode permet de faire la connexion à la page chat */
   onLogin(userCredentials: UserCredentials) {
-    // À faire
-
     this.authService.login(userCredentials).subscribe(response => {
       if (response.success) {
         console.log('Login successful, redirecting to chat page...');

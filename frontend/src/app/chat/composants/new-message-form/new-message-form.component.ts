@@ -27,6 +27,7 @@ export class NewMessageFormComponent {
     private authenticationService: AuthenticationService,
   ) {}
 
+  /** cette methode permet d'afficher les messages envoyés */
   onPublishMessage() {
     if (
       this.username() &&

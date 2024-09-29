@@ -20,12 +20,9 @@ export class ChatPageComponent {
     private router: Router
   ) {}
 
+  /** Cette méthode permet de faire la deconnexion du chat */
   onLogout() {
-    // À faire
-     // Clear authentication (e.g., remove token from localStorage or session)
      this.authenticationService.logout();  
-    
-     // Redirect to the login page
      this.router.navigate(['/login']);
  
   }

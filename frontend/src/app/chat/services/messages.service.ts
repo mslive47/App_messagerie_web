@@ -17,10 +17,7 @@ export class MessagesService {
   }
 
   getFirstMessage() : Message | undefined {
-     // Accède à la valeur actuelle du signal (qui est un tableau)
      const currentMessages = this.messages();
-    
-     // Retourne le premier message s'il existe, sinon retourne 'undefined'
      return currentMessages.length > 0 ? currentMessages[0] : undefined;
   }
 }

@@ -46,11 +46,12 @@ export class MessagesComponent implements AfterViewChecked {
     return false;
   }
 
-  // Cette méthode sera appelée après chaque mise à jour de la vue
+  /** Cette méthode sera appelée après chaque mise à jour de la vue. */
   ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
 
+  /** Cette méthode permet de faire un défilement automatique */
   scrollToBottom(): void {
     this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
   }

@@ -24,8 +24,8 @@ checkPassWord : boolean = false;
 
   constructor(private fb: FormBuilder) {}
 
+  /** Cette méthode de faire la connexion au chat */
   onLogin() {
-    // À faire
     const credentials: UserCredentials = {
       username: this.loginForm.value.username!,
       password: this.loginForm.value.password!,
@@ -34,22 +34,26 @@ checkPassWord : boolean = false;
     this.login.emit(credentials);
   }
 
+  /** Cette méthode permet de verifier le username */
   verifyName() {
     if (this.loginForm.value.username == '') {
       this.checkName = true;
     }  
   }
 
+  /** Cette méthode permet de réinitialiser le champ nom d'usager */
   resetName() {
     this.checkName = false;
   }
 
+  /** Cette méthode de verifier le mot de passe */
   verifyPassWord() {
     if(this.loginForm.value.password == '') {
       this.checkPassWord = true;
     }
   }
 
+  /** Cette méthode permet de réinitialier le champ mot de passe */
   resetPass() {
     this.checkPassWord = false;
   }
