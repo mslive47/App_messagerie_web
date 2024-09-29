@@ -2,18 +2,24 @@
   <form class="form" (ngSubmit)="onLogin()" [formGroup]="loginForm">
     <div>
       <div>
-        <label
-          >Nom d'usager:
-          <input name="username" type="text" formControlName="username" />
-        </label>
+        <mat-form-field>
+          <mat-label>Nom d'usager</mat-label>
+            <input matInput (blur)="verifyName()" (focus)="resetName()" name="username" type="text" formControlName="username" />
+        </mat-form-field>
+          @if (checkName) {
+          <mat-error>nom requis</mat-error>
+        }
       </div>
       <div>
-        <label
-          >Mot de passe:
-          <input name="password" type="password" formControlName="password"
-        /></label>
+        <mat-form-field>
+          <mat-label>Mot de passe</mat-label>
+            <input matInput (blur)="verifyPassWord()" (focus)="resetPass()" name="password" type="password" formControlName="password"/>
+        </mat-form-field>
+          @if(checkPassWord) {
+            <mat-error>mot de passe requis</mat-error>
+          }
       </div>
     </div>
-    <div><button type="submit">Connexion</button></div>
+    <div><button mat-flat-button  type="submit" [disabled]="loginForm.invalid">Connexion</button></div>
   </form>
 </div>

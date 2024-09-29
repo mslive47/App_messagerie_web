@@ -9,9 +9,15 @@ export class MessagesService {
 
   postMessage(message: Message): void {
     // À faire
+    this.messages.set([...this.messages(), message]);
   }
 
   getMessages(): Signal<Message[]> {
     return this.messages;
+  }
+
+  getFirstMessage() : Message | undefined {
+     const currentMessages = this.messages();
+     return currentMessages.length > 0 ? currentMessages[0] : undefined;
   }
 }
