@@ -1,3 +1,4 @@
+/*
 <div class="chat">
   <div class="chat-logout-button">
     <button mat-flat-button (click)="onLogout()">Deconnexion</button>
@@ -18,8 +19,12 @@
       }
     </div>
     <form (ngSubmit)="onPublishMessage()" [formGroup]="messageForm">
-      <input name="message" type="text" formControlName="msg" />
-      <button type="submit">></button>
+      <input matInput name="message" type="text" formControlName="msg" />
+      <button mat-icon-button matSuffix type="submit">
+        <mat-icon>send</mat-icon>
+      </button>
+    
+
     </form>
   </div>
 </div>
