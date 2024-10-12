@@ -41,10 +41,27 @@ export class AuthenticationService {
     }
   }
 
-  logout() {
+  async logout() {
     // À faire
+    try {
+      // Appel au backend avec HttpClient et firstValueFrom
+      const logoutResponse = await firstValueFrom(
+        this.httpClient.post<void>(
+          `${environment.backendUrl}/auth/logout`, // URL du backend
+          {},
+          //userCredentials, // Données des credentials
+          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
+        )
+      );
     localStorage.removeItem('username');
     this.username.set(null);
+    return { success: true }
+
+    } catch (error) {
+      // Gérer les erreurs lors de l'appel backend
+      console.error('Logout failed', error);
+      return { success: false, error: 'Logout failed' };
+    }
   }
 
   getUsername(): Signal<string | null> {
