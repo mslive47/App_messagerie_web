@@ -8,7 +8,6 @@ import com.inf5190.chat.messages.model.Message;
 
 /**
  * Classe qui gère la persistence des messages.
- * 
  * En mémoire pour le moment.
  */
 @Repository
@@ -18,12 +17,19 @@ public class MessageRepository {
 
     public List<Message> getMessages(Long fromId) {
         // À faire...
-        return new ArrayList<>();
+        return this.messages;
     }
 
     public Message createMessage(Message message) {
         // À faire...
-        return null;
+        long id = idGenerator.getAndIncrement();
+        Message newMessage;
+        newMessage = new Message(id, message.username(), message.timestamp(), message.text());
+        return newMessage;
+    }
+
+    public void addMessage(Message message) {
+        this.messages.add(message);
     }
 
 }
