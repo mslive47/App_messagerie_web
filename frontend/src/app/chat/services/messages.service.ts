@@ -3,6 +3,8 @@ import { Message } from '../model/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { WebSocketService } from './web-socket.service';  // Import du WebSocketService
+
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +12,20 @@ import { firstValueFrom } from 'rxjs';
 export class MessagesService {
   messages = signal<Message[]>([]);
 
-  constructor(private httpClient : HttpClient) {}
+  constructor(private httpClient : HttpClient, private webSocketService: WebSocketService) {
+    // Connexion au WebSocket et abonnement aux notifications
+    this.webSocketService.connect().subscribe({
+      next: () => {
+        this.fetchMessages(); // Rafraîchir les messages lorsque la notification 'notif' est reçue
+      },
+      error: (err) => {
+        console.error('WebSocket error', err);
+      },
+      complete: () => {
+        console.log('WebSocket connection closed');
+      }
+    });
+  }
 
    async postMessage(message: Message):  Promise<{ success: boolean; error?: string }> {
     // À faire
@@ -25,7 +40,7 @@ export class MessagesService {
         )
       );
        // Si l'envoi est réussi, on déclenche une mise à jour des messages en appelant fetchMessages()
-       await this.fetchMessages();
+       //await this.fetchMessages();
 
      return { success: true }
 
