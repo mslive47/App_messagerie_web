@@ -1,9 +1,12 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, effect } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, effect, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { Message } from '../../model/message.model';
 import { MessagesService } from '../../services/messages.service';
 import { NewMessageFormComponent } from '../new-message-form/new-message-form.component';
+import { Subscription } from 'rxjs';
+import { WebSocketService, WebSocketEvent } from 'src/app/websocket/web-socket.service'; // Import WebSocketService
+
 
 @Component({
   selector: 'app-messages',
@@ -12,9 +15,11 @@ import { NewMessageFormComponent } from '../new-message-form/new-message-form.co
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
-export class MessagesComponent implements AfterViewChecked {
+export class MessagesComponent implements AfterViewChecked,  OnInit, OnDestroy {
   messages = this.messagesService.getMessages();
   username = this.authenticationService.getUsername();
+
+  private wsSubscription: Subscription = Subscription.EMPTY;  // Initialisation par défaut
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
   
@@ -24,12 +29,22 @@ export class MessagesComponent implements AfterViewChecked {
   constructor(
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
+    private webSocketService: WebSocketService
   ) {
     // Écouter les changements des messages et mettre à jour `firstUser` dynamiquement
   effect(() => {
     const firstMessage = this.messages()[0];  // Récupère le premier message
     this.firstUser = firstMessage?.username;  // Met à jour `firstUser`
   });
+  }
+
+  ngOnInit(): void {
+    this.messagesService.fetchMessages(); // Chargement des messages au démarrage
+    this.wsSubscription = this.webSocketService.connect().subscribe((event: WebSocketEvent) => {
+      if (event === "notif") {
+        this.messagesService.fetchMessages(); // Appelle une méthode pour rafraîchir les messages
+      }
+    });
   }
 
   /** Afficher la date seulement si la date du message précédent est différente du message courant. */
@@ -55,4 +70,10 @@ export class MessagesComponent implements AfterViewChecked {
   scrollToBottom(): void {
     this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
   }
+
+  ngOnDestroy() {
+    this.wsSubscription.unsubscribe();  // Se désabonne de l'Observable à la destruction du composant
+    this.webSocketService.disconnect();  // Déconnecte le WebSocket
+  }
+
 }

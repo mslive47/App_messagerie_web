@@ -18,6 +18,7 @@ public class AuthService {
                 .secure(true)
                 .path("/")
                 .maxAge(24 * 60 * 60)
+                .sameSite("None")
                 .build();
         return sessionCookie;
     }
@@ -29,6 +30,7 @@ public class AuthService {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
+                .sameSite("None")
                 .build();
         return deleteCookie;
     }

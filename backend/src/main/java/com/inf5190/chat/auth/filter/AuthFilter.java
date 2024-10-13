@@ -50,7 +50,9 @@ public class AuthFilter extends OncePerRequestFilter {
         final Cookie[] cookies = httpRequest.getCookies();
 
         if (cookies == null) {
-            this.sendAuthErrorResponse(httpRequest, httpResponse);
+           // this.sendAuthErrorResponse(httpRequest, httpResponse);
+          
+            chain.doFilter(request, response);
             return;
         }
 
@@ -60,7 +62,10 @@ public class AuthFilter extends OncePerRequestFilter {
                                 && c.getName().equals(AuthController.SESSION_ID_COOKIE_NAME))
                         .findFirst();
         if (sessionCookie.isEmpty()) {
-            this.sendAuthErrorResponse(httpRequest, httpResponse);
+
+          //  this.sendAuthErrorResponse(httpRequest, httpResponse);
+
+           chain.doFilter(request, response);
             return;
         }
 

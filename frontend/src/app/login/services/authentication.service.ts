@@ -41,11 +41,12 @@ export class AuthenticationService {
     }
   }
 
-  async logout() {
+  async logout(): Promise<{ success: boolean; error?: string }>{
     // À faire
     try {
       // Appel au backend avec HttpClient et firstValueFrom
-      const logoutResponse = await firstValueFrom(
+      // const logoutResponse = 
+      await firstValueFrom(
         this.httpClient.post<void>(
           `${environment.backendUrl}/auth/logout`, // URL du backend
           {},
@@ -53,7 +54,8 @@ export class AuthenticationService {
           { withCredentials: true } // Pour envoyer et recevoir les cookies de session
         )
       );
-    localStorage.removeItem('username');
+    //console.log('Logout response:', logoutResponse);
+    localStorage.removeItem(AuthenticationService.KEY);
     this.username.set(null);
     return { success: true }
 

@@ -23,7 +23,7 @@ public class AuthController {
     public static final String SESSION_ID_COOKIE_NAME = "sid";
 
     private final SessionManager sessionManager;
-    private AuthService authService;
+    private final AuthService authService;
 
     public AuthController(SessionManager sessionManager, AuthService authService) {
         this.sessionManager = sessionManager;
