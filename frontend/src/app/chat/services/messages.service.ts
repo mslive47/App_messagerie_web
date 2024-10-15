@@ -11,12 +11,13 @@ import { WebSocketService } from './web-socket.service';  // Import du WebSocket
 })
 export class MessagesService {
   messages = signal<Message[]>([]);
+  lastMessageId : number = 0;
 
   constructor(private httpClient : HttpClient, private webSocketService: WebSocketService) {
     // Connexion au WebSocket et abonnement aux notifications
     this.webSocketService.connect().subscribe({
       next: () => {
-        this.fetchMessages(); // Rafraîchir les messages lorsque la notification 'notif' est reçue
+        this.fetchMessages(this.lastMessageId); // Rafraîchir les messages lorsque la notification 'notif' est reçue
       },
       error: (err) => {
         console.error('WebSocket error', err);
@@ -41,6 +42,8 @@ export class MessagesService {
       );
        // Si l'envoi est réussi, on déclenche une mise à jour des messages en appelant fetchMessages()
        //await this.fetchMessages();
+       this.lastMessageId = messageResponse.id;
+       console.log('message id envoye : '  + this.lastMessageId);
 
      return { success: true }
 
@@ -51,11 +54,13 @@ export class MessagesService {
     }
   }
 
-  async fetchMessages() :  Promise<{ success: boolean; error?: string }>  {
+  async fetchMessages(id : number) :  Promise<{ success: boolean; error?: string }>  {
     try {
+      const url = id ? `${environment.backendUrl}/auth/chat?fromId=${id}` : `${environment.backendUrl}/auth/chat`;
       const messageResponse = await firstValueFrom(
         this.httpClient.get<Message[]>(
-          `${environment.backendUrl}/auth/chat`, // URL du backend à changer en /chat si ca marche pas 
+          url,
+          //`${environment.backendUrl}/auth/chat`, // URL du backend à changer en /chat si ca marche pas 
            // Données des credentials
           { withCredentials: true } // Pour envoyer et recevoir les cookies de session
         )

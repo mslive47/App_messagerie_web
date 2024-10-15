@@ -4,6 +4,7 @@ import com.inf5190.chat.messages.model.Message;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -18,13 +19,14 @@ public class MessageService {
         this.webSocketManager = webSocketManager;
     }
 
-    public void createMessage(Message message) {
+    public Message createMessage(Message message) {
         Message receiveMessage = this.messageRepository.createMessage(message);
         this.messageRepository.addMessage(receiveMessage);
         this.webSocketManager.notifySessions();
+        return receiveMessage;
     }
 
-    public List<Message> getMessages() {
-        return this.messageRepository.getMessages(null);
+    public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
+        return this.messageRepository.getMessages(fromId);
     }
  }

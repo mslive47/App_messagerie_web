@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 public class MessageController {
     public static final String MESSAGES_PATH = "/auth/chat";
+    public static final String MESSAGE_PATH_WITH_ID = "/auth/chat/{id}";
 
     private WebSocketManager webSocketManager;
     private MessageService messageService;
@@ -27,12 +28,18 @@ public class MessageController {
     // À faire...
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(MESSAGES_PATH)
-    public void createMessage(@RequestBody Message message) {
-        this.messageService.createMessage(message);
+    public Message createMessage(@RequestBody Message message) {
+        Message postedMessage = this.messageService.createMessage(message);
+        return postedMessage;
     }
 
     @GetMapping(MESSAGES_PATH)
-    public @ResponseBody List<Message> getMessages() {
-        return this.messageService.getMessages();
+    public @ResponseBody List<Message> getMessages(@RequestParam(required = false) Long fromId) {
+        return this.messageService.getMessages(fromId);
+    }
+
+    @GetMapping(MESSAGE_PATH_WITH_ID)
+    public @ResponseBody List<Message> getMessagesById(@PathVariable Long id){
+        return this.messageService.getMessages(id);
     }
 }
