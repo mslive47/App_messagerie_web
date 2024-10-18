@@ -16,6 +16,7 @@ export class NewMessageFormComponent {
 
   username = this.authenticationService.getUsername();
   scroll = output();
+  messageId : number = 0;
 
   messageForm = this.fb.group({
     msg: '',
@@ -35,6 +36,7 @@ export class NewMessageFormComponent {
       this.messageForm.value.msg
     ) {
       this.messagesService.postMessage({
+        id : this.messageId,
         text: this.messageForm.value.msg,
         username: this.username()!,
         timestamp: Date.now(),
@@ -42,6 +44,7 @@ export class NewMessageFormComponent {
     }
     this.messageForm.reset();
     this.scroll.emit;
+    this.messageId++;
   }
 
 }
