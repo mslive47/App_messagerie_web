@@ -11,6 +11,7 @@ import { WebSocketService } from './web-socket.service';  // Import du WebSocket
 })
 export class MessagesService {
   messages = signal<Message[]>([]);
+  //messages = signal<Set<Message>>(new Set());
   lastMessageId : number = 0;
 
   constructor(private httpClient : HttpClient, private webSocketService: WebSocketService) {
@@ -66,7 +67,24 @@ export class MessagesService {
         )
       );
 
+      //this.messages.set([...messageResponse]);
+      //this.messages.set([...this.messages(), ...messageResponse]);
+      // Vérifier s'il y a des messages actuels
+    const currentMessages = this.messages();
+    
+    if (currentMessages.length > 0) {
+      // Récupérer le dernier message existant
+      const lastMessage = currentMessages[currentMessages.length - 1];
+
+      // Filtrer les nouveaux messages pour éviter les doublons
+      const newMessages = messageResponse.filter(msg => msg.id > lastMessage.id);
+
+      // Ajouter uniquement les nouveaux messages à la liste existante
+      this.messages.set([...currentMessages, ...newMessages]);
+    } else {
+      // S'il n'y a pas de messages existants, ajouter tous les messages
       this.messages.set([...messageResponse]);
+    }
   
      return { success: true }
 
