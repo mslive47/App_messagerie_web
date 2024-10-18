@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, effect } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, effect, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { Message } from '../../model/message.model';
@@ -12,7 +12,7 @@ import { NewMessageFormComponent } from '../new-message-form/new-message-form.co
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
-export class MessagesComponent implements AfterViewChecked {
+export class MessagesComponent implements OnInit, AfterViewChecked {
   messages = this.messagesService.getMessages();
   username = this.authenticationService.getUsername();
 
@@ -55,4 +55,15 @@ export class MessagesComponent implements AfterViewChecked {
   scrollToBottom(): void {
     this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
   }
+
+    /** Appeler fetchMessages() lors du chargement de la page pour afficher les messages. */
+    ngOnInit(): void {
+      this.messagesService.fetchMessages(0) // ID=0 ou null pour récupérer tous les messages initiaux
+        .then(() => {
+          console.log("Messages fetched successfully on init.");
+        })
+        .catch(error => {
+          console.error("Error fetching messages on init:", error);
+        });
+    }
 }
