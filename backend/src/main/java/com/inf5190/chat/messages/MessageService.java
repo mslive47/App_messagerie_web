@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+/**
+ * Service utilisé par le MessageController.
+ */
 @Service
 public class MessageService {
 
@@ -19,6 +22,11 @@ public class MessageService {
         this.webSocketManager = webSocketManager;
     }
 
+    /**
+     * Cette methode permet de créer un message
+     * @param message le message à creer
+     * @return receiveMessage le message créé
+     * */
     public Message createMessage(Message message) {
         Message receiveMessage = this.messageRepository.createMessage(message);
         this.messageRepository.addMessage(receiveMessage);
@@ -26,6 +34,11 @@ public class MessageService {
         return receiveMessage;
     }
 
+    /**
+     * Cette methode de retourner la liste de message
+     * @param fromId, l'id du message
+     * @return la liste de messages
+     * */
     public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
         return this.messageRepository.getMessages(fromId);
     }

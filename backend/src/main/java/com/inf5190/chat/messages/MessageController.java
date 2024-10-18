@@ -26,6 +26,11 @@ public class MessageController {
     }
 
     // À faire...
+    /**
+     * Cette methode permet de créer un message
+     * @param message le message à creer
+     * @return receiveMessage le message créé
+     * */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(MESSAGES_PATH)
     public Message createMessage(@RequestBody Message message) {
@@ -33,11 +38,21 @@ public class MessageController {
         return postedMessage;
     }
 
+    /**
+     * Cette methode permet d'obtenir la liste des messages
+     * @param fromId l'id du message
+     * @return la liste des messages
+     * */
     @GetMapping(MESSAGES_PATH)
     public @ResponseBody List<Message> getMessages(@RequestParam(required = false) Long fromId) {
         return this.messageService.getMessages(fromId);
     }
 
+    /**
+     * Cette methode permet d'obtenir un message de la liste des messages
+     * @param id l'id du message
+     * @return le message
+     * */
     @GetMapping(MESSAGE_PATH_WITH_ID)
     public @ResponseBody List<Message> getMessagesById(@PathVariable Long id){
         return this.messageService.getMessages(id);

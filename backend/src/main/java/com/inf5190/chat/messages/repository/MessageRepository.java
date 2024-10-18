@@ -18,6 +18,11 @@ public class MessageRepository {
     private final List<Message> messages = new ArrayList<Message>();
     private final AtomicLong idGenerator = new AtomicLong(0);
 
+    /**
+     * Cette methode de retourner la liste de message
+     * @param fromId, l'id du message
+     * @return la liste de messages
+     * */
     public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
         // À faire...
         if (fromId != null) {
@@ -27,6 +32,11 @@ public class MessageRepository {
         }
     }
 
+    /**
+     * Cette methode permet de créer un message
+     * @param message le message à creer
+     * @return receiveMessage le message créé
+     * */
     public Message createMessage(Message message) {
         // À faire...
         long id = idGenerator.getAndIncrement();
@@ -35,6 +45,9 @@ public class MessageRepository {
         return newMessage;
     }
 
+    /**
+     * Cette methode permet d'ajouter un message dans la liste des messages
+     * */
     public void addMessage(Message message) {
         this.messages.add(message);
     }
