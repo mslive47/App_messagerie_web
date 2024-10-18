@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Component, effect, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -9,24 +10,32 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 
+=======
+import { Component } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import { AuthenticationService } from 'src/app/login/services/authentication.service';
+import { Router } from '@angular/router';
+import { MessagesComponent } from '../../composants/messages/messages.component';
+import { MatButtonModule } from '@angular/material/button';
+>>>>>>> dev_ms
 
 @Component({
   selector: 'app-chat-page',
   templateUrl: './chat-page.component.html',
   styleUrls: ['./chat-page.component.css'],
   standalone: true,
+<<<<<<< HEAD
   imports: [ReactiveFormsModule, DatePipe, MatButtonModule, MatFormFieldModule, MatIconModule],
+=======
+  imports: [ReactiveFormsModule, DatePipe, MessagesComponent, MatButtonModule],
+>>>>>>> dev_ms
 })
 export class ChatPageComponent {
-  messages = signal<Message[]>([]);
-  username = this.authenticationService.getUsername();
-
-  messageForm = this.fb.group({
-    msg: '',
-  });
 
 
   constructor(
+<<<<<<< HEAD
     private fb: FormBuilder,
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
@@ -55,21 +64,32 @@ export class ChatPageComponent {
     }
     this.messageForm.reset();
   }
+=======
+    private authenticationService: AuthenticationService,
+    private router: Router
+  ) {}
 
-  /** Afficher la date seulement si la date du message précédent est différente du message courant. */
-  showDateHeader(messages: Message[] | null, i: number) {
-    if (messages != null) {
-      if (i === 0) {
-        return true;
+  /** Cette méthode permet de faire la deconnexion du chat */
+  async onLogout() {
+>>>>>>> dev_ms
+
+    try {
+      const response = await this.authenticationService.logout();
+      if (response.success) {
+        // Rediriger vers la page de login après un logout réussi
+        this.router.navigate(['/login']);
       } else {
-        const prev = new Date(messages[i - 1].timestamp).setHours(0, 0, 0, 0);
-        const curr = new Date(messages[i].timestamp).setHours(0, 0, 0, 0);
-        return prev != curr;
+        console.error('Logout failed:', response.error);
       }
+    } catch (error) {
+      console.error('An error occurred during login:', error);
     }
-    return false;
+    // this.authenticationService.logout();  
+    // this.router.navigate(['/login']);
+ 
   }
 
+<<<<<<< HEAD
   onLogout() {
     // À faire
     // Clear authentication (e.g., remove token from localStorage or session)
@@ -78,4 +98,6 @@ export class ChatPageComponent {
     // Redirect to the login page
     this.router.navigate(['/login']);
   }
+=======
+>>>>>>> dev_ms
 }

@@ -10,9 +10,13 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.css'],
   standalone: true,
+
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule],
 })
 export class LoginFormComponent {
+verifyName() {
+throw new Error('Method not implemented.');
+}
   loginForm = this.fb.group({
     username: ['', Validators.required],
     password: ['', Validators.required],
@@ -24,6 +28,7 @@ export class LoginFormComponent {
 
   constructor(private fb: FormBuilder) {}
 
+  /** Cette méthode de faire la connexion au chat */
   onLogin() {
     // À faire
     if (this.loginForm.valid) {
@@ -37,5 +42,6 @@ export class LoginFormComponent {
     } else {
       this.showInvalidFormMessage = true;
     }
+
   }
 }
