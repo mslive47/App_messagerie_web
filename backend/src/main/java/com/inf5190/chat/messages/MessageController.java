@@ -15,20 +15,17 @@ import com.inf5190.chat.websocket.WebSocketManager;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-
 /**
  * Contrôleur qui gère l'API de messages.
  */
 @RestController
 public class MessageController {
-    public static final String MESSAGES_PATH = "/messages";
-
+     public static final String MESSAGES_PATH = "/messages";
 
     private MessageRepository messageRepository;
     private WebSocketManager webSocketManager;
 
-    public MessageController(MessageRepository messageRepository,
-            WebSocketManager webSocketManager) {
+    public MessageController(MessageRepository messageRepository, WebSocketManager webSocketManager) {
         this.messageRepository = messageRepository;
         this.webSocketManager = webSocketManager;
     }
@@ -46,7 +43,7 @@ public class MessageController {
         return ResponseEntity.ok(messages);
     }
 
-/**
+    /**
      * Publie un nouveau message.
      *
      * @param message le message à publier.
@@ -57,5 +54,5 @@ public class MessageController {
         Message createdMessage = messageRepository.createMessage(message);
         webSocketManager.notifySessions(); // Appel d'une notification générale via WebSocketManager
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage);
-    }
+    }    
 }

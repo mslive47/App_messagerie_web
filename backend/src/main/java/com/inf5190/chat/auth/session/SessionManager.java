@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Classe qui gère les sessions utilisateur.
- * 
  * Pour le moment, on gère en mémoire.
  */
 @Repository

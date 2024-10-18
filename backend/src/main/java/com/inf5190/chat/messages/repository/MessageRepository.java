@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 /**
  * Classe qui gère la persistence des messages.
- * 
  * En mémoire pour le moment.
  */
 @Repository
@@ -20,6 +19,7 @@ public class MessageRepository {
 
     public List<Message> getMessages(Long fromId) {
         // À faire...
+
         // Si fromId est nul, retourner tous les messages
         if (fromId == null) {
             return new ArrayList<>(messages);
@@ -29,21 +29,17 @@ public class MessageRepository {
         return messages.stream()
                        .filter(message -> message.id() > fromId)
                        .collect(Collectors.toList());
+       // return this.messages;
+
     }
 
     public Message createMessage(Message message) {
         // À faire...
 
-        // Génère un nouvel identifiant pour le message
-        long id = idGenerator.incrementAndGet();
-
-        // Create a new Message instance with the generated ID and current timestamp
+        long id = idGenerator.getAndIncrement();
         Message newMessage = new Message(id, message.username(), System.currentTimeMillis(), message.text());
-
-        // Add the new message to the list
         messages.add(newMessage);
-
-        // Retourne le message ajouté
         return newMessage;
-    }
+    } 
 }
+

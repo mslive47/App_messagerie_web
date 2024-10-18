@@ -49,6 +49,7 @@ export class MessagesService {
   }
 
   getMessages(): Signal<Message[]> {
+    //this.fetchMessages();
     return this.messages;
   }
 
