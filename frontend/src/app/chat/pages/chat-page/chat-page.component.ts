@@ -26,7 +26,6 @@ export class ChatPageComponent {
     try {
       const response = await this.authenticationService.logout();
       if (response.success) {
-        // Rediriger vers la page de login après un logout réussi
         this.router.navigate(['/login']);
       } else {
         console.error('Logout failed:', response.error);
@@ -34,9 +33,6 @@ export class ChatPageComponent {
     } catch (error) {
       console.error('An error occurred during login:', error);
     }
-    // this.authenticationService.logout();  
-    // this.router.navigate(['/login']);
- 
   }
 
 }

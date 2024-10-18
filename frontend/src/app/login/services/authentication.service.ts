@@ -12,45 +12,42 @@ export class AuthenticationService {
   static KEY = 'username';
 
   private username = signal<string | null>(null); 
-  //private httpClient : HttpClient;
 
   constructor(private httpClient : HttpClient) {
     this.username.set(localStorage.getItem(AuthenticationService.KEY));
   }
 
+  /* Cette methode permet d'enregistrer un utilisateur */
    async login(userCredentials: UserCredentials) :  Promise<{ success: boolean; username?: string; error?: string }> {
     // À faire
     try {
-      // Appel au backend avec HttpClient et firstValueFrom
       const loginResponse = await firstValueFrom(
         this.httpClient.post<LoginResponse>(
-          `${environment.backendUrl}/auth/login`, // URL du backend
-          userCredentials, // Données des credentials
-          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
+          `${environment.backendUrl}/auth/login`, 
+          userCredentials,
+          { withCredentials: true } 
         )
       );
     localStorage.setItem(AuthenticationService.KEY, loginResponse.username);
     this.username.set(loginResponse.username);
-     // Simuler une réponse de succès pour la démonstration
+
      return { success: true }
 
     } catch (error) {
-      // Gérer les erreurs lors de l'appel backend
       console.error('Login failed', error);
       return { success: false, error: 'Login failed' };
     }
   }
 
+  /* Cette methode permet de supprimer un utilisateur */
   async logout() {
     // À faire
     try {
-      // Appel au backend avec HttpClient et firstValueFrom
       const logoutResponse = await firstValueFrom(
         this.httpClient.post<void>(
-          `${environment.backendUrl}/auth/logout`, // URL du backend
+          `${environment.backendUrl}/auth/logout`, 
           {},
-          //userCredentials, // Données des credentials
-          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
+          { withCredentials: true } 
         )
       );
     localStorage.removeItem('username');
@@ -58,7 +55,6 @@ export class AuthenticationService {
     return { success: true }
 
     } catch (error) {
-      // Gérer les erreurs lors de l'appel backend
       console.error('Logout failed', error);
       return { success: false, error: 'Logout failed' };
     }
