@@ -13,18 +13,18 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class LoginFormComponent {
   loginForm = this.fb.group({
-    username: ['', Validators.required], //Ajouter validators  
-    password: ['', Validators.required]
+    username: ['', Validators.required],
+    password: ['', Validators.required],
   });
 
-checkName : boolean = false;
-checkPassWord : boolean = false;
+  checkName: boolean = false;
+  checkPassWord: boolean = false;
 
   login = output<UserCredentials>();
 
   constructor(private fb: FormBuilder) {}
 
-  /** Cette méthode de faire la connexion au chat */
+  /** Cette méthode permet de faire la connexion au chat */
   onLogin() {
     const credentials: UserCredentials = {
       username: this.loginForm.value.username!,
@@ -38,7 +38,7 @@ checkPassWord : boolean = false;
   verifyName() {
     if (this.loginForm.value.username == '') {
       this.checkName = true;
-    }  
+    }
   }
 
   /** Cette méthode permet de réinitialiser le champ nom d'usager */
@@ -48,7 +48,7 @@ checkPassWord : boolean = false;
 
   /** Cette méthode de verifier le mot de passe */
   verifyPassWord() {
-    if(this.loginForm.value.password == '') {
+    if (this.loginForm.value.password == '') {
       this.checkPassWord = true;
     }
   }

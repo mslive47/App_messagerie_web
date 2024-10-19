@@ -4,22 +4,40 @@
       <div>
         <mat-form-field>
           <mat-label>Nom d'usager</mat-label>
-            <input matInput (blur)="verifyName()" (focus)="resetName()" name="username" type="text" formControlName="username" />
+          <input
+            matInput
+            (blur)="verifyName()"
+            (focus)="resetName()"
+            name="username"
+            type="text"
+            formControlName="username"
+          />
         </mat-form-field>
-          @if (checkName) {
-          <mat-error>nom requis</mat-error>
+        @if (checkName) {
+        <mat-error>nom requis</mat-error>
         }
       </div>
       <div>
         <mat-form-field>
           <mat-label>Mot de passe</mat-label>
-            <input matInput (blur)="verifyPassWord()" (focus)="resetPass()" name="password" type="password" formControlName="password"/>
+          <input
+            matInput
+            (blur)="verifyPassWord()"
+            (focus)="resetPass()"
+            name="password"
+            type="password"
+            formControlName="password"
+          />
         </mat-form-field>
-          @if(checkPassWord) {
-            <mat-error>mot de passe requis</mat-error>
-          }
+        @if(checkPassWord) {
+        <mat-error>mot de passe requis</mat-error>
+        }
       </div>
     </div>
-    <div><button mat-flat-button  type="submit" [disabled]="loginForm.invalid">Connexion</button></div>
+    <div>
+      <button mat-flat-button type="submit" [disabled]="loginForm.invalid">
+        Connexion
+      </button>
+    </div>
   </form>
 </div>

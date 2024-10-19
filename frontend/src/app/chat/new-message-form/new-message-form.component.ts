@@ -45,5 +45,4 @@ export class NewMessageFormComponent {
     this.messageForm.reset();
     this.scroll.emit;
   }
-
 }

@@ -3,105 +3,87 @@ import { Message } from '../model/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { WebSocketService } from './web-socket.service';  // Import du WebSocketService
-
+import { WebSocketService } from './web-socket.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessagesService {
   messages = signal<Message[]>([]);
-  //messages = signal<Set<Message>>(new Set());
-  lastMessageId : number = 0;
+  lastMessageId: number = 0;
 
-  constructor(private httpClient : HttpClient, private webSocketService: WebSocketService) {
+  constructor(
+    private httpClient: HttpClient,
+    private webSocketService: WebSocketService
+  ) {
     // Connexion au WebSocket et abonnement aux notifications
     this.webSocketService.connect().subscribe({
       next: () => {
-        this.fetchMessages(this.lastMessageId); // Rafraîchir les messages lorsque la notification 'notif' est reçue
+        this.fetchMessages(this.lastMessageId);
       },
       error: (err) => {
         console.error('WebSocket error', err);
       },
       complete: () => {
         console.log('WebSocket connection closed');
-      }
+      },
     });
   }
 
-   async postMessage(message: Message):  Promise<{ success: boolean; error?: string }> {
+  async postMessage(
+    message: Message
+  ): Promise<{ success: boolean; error?: string }> {
     // À faire
-    //this.messages.set([...this.messages(), message]); on en aura besoin dans le fetchMessage pour assigner nos resultats.
-      // Appel au backend avec HttpClient et firstValueFrom
-      try {
+    try {
       const messageResponse = await firstValueFrom(
         this.httpClient.post<Message>(
-          `${environment.backendUrl}/auth/chat`, // URL du backend à changer en /chat si ca marche pas 
-          message, // Données des credentials
-          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
+          `${environment.backendUrl}/auth/chat`,
+          message,
+          { withCredentials: true }
         )
       );
-       // Si l'envoi est réussi, on déclenche une mise à jour des messages en appelant fetchMessages()
-       //await this.fetchMessages();
-       this.lastMessageId = messageResponse.id;
-       console.log('message id envoye : '  + this.lastMessageId);
-
-     return { success: true }
-
+      this.lastMessageId = messageResponse.id;
+      console.log('message id envoye : ' + this.lastMessageId);
+      return { success: true };
     } catch (error: any) {
-      // Gérer les erreurs lors de l'appel backend
       console.error('post message failed', error);
       return { success: false, error: 'post message failed' };
     }
   }
 
-  async fetchMessages(id : number) :  Promise<{ success: boolean; error?: string }>  {
+  async fetchMessages(
+    id: number
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-      const url = id ? `${environment.backendUrl}/auth/chat?fromId=${id}` : `${environment.backendUrl}/auth/chat`;
+      const url = id
+        ? `${environment.backendUrl}/auth/chat?fromId=${id}`
+        : `${environment.backendUrl}/auth/chat`;
       const messageResponse = await firstValueFrom(
-        this.httpClient.get<Message[]>(
-          url,
-          //`${environment.backendUrl}/auth/chat`, // URL du backend à changer en /chat si ca marche pas 
-           // Données des credentials
-          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
-        )
+        this.httpClient.get<Message[]>(url, { withCredentials: true })
       );
-
-      //this.messages.set([...messageResponse]);
-      //this.messages.set([...this.messages(), ...messageResponse]);
-      // Vérifier s'il y a des messages actuels
-    const currentMessages = this.messages();
-    
-    if (currentMessages.length > 0) {
-      // Récupérer le dernier message existant
-      const lastMessage = currentMessages[currentMessages.length - 1];
-
-      // Filtrer les nouveaux messages pour éviter les doublons
-      const newMessages = messageResponse.filter(msg => msg.id > lastMessage.id);
-
-      // Ajouter uniquement les nouveaux messages à la liste existante
-      this.messages.set([...currentMessages, ...newMessages]);
-    } else {
-      // S'il n'y a pas de messages existants, ajouter tous les messages
-      this.messages.set([...messageResponse]);
-    }
-  
-     return { success: true }
-
+      const currentMessages = this.messages();
+      if (currentMessages.length > 0) {
+        const lastMessage = currentMessages[currentMessages.length - 1];
+        const newMessages = messageResponse.filter(
+          (msg) => msg.id > lastMessage.id
+        );
+        this.messages.set([...currentMessages, ...newMessages]);
+      } else {
+        this.messages.set([...messageResponse]);
+      }
+      return { success: true };
     } catch (error: any) {
-      // Gérer les erreurs lors de l'appel backend
       console.error('fetch message failed', error);
       return { success: false, error: 'fetch message failed' };
     }
   }
 
   getMessages(): Signal<Message[]> {
-    //this.fetchMessages();
     return this.messages;
   }
 
-  getFirstMessage() : Message | undefined {
-     const currentMessages = this.messages();
-     return currentMessages.length > 0 ? currentMessages[0] : undefined;
+  getFirstMessage(): Message | undefined {
+    const currentMessages = this.messages();
+    return currentMessages.length > 0 ? currentMessages[0] : undefined;
   }
 }

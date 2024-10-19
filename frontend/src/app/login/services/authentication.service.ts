@@ -10,32 +10,29 @@ import { LoginResponse } from '../model/login-response';
 })
 export class AuthenticationService {
   static KEY = 'username';
+  private username = signal<string | null>(null);
 
-  private username = signal<string | null>(null); 
-  //private httpClient : HttpClient;
-
-  constructor(private httpClient : HttpClient) {
+  constructor(private httpClient: HttpClient) {
     this.username.set(localStorage.getItem(AuthenticationService.KEY));
   }
 
-   async login(userCredentials: UserCredentials) :  Promise<{ success: boolean; username?: string; error?: string }> {
+  async login(
+    userCredentials: UserCredentials
+  ): Promise<{ success: boolean; username?: string; error?: string }> {
     // À faire
     try {
       // Appel au backend avec HttpClient et firstValueFrom
       const loginResponse = await firstValueFrom(
         this.httpClient.post<LoginResponse>(
-          `${environment.backendUrl}/auth/login`, // URL du backend
-          userCredentials, // Données des credentials
-          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
+          `${environment.backendUrl}/auth/login`,
+          userCredentials,
+          { withCredentials: true }
         )
       );
-    localStorage.setItem(AuthenticationService.KEY, loginResponse.username);
-    this.username.set(loginResponse.username);
-     // Simuler une réponse de succès pour la démonstration
-     return { success: true }
-
+      localStorage.setItem(AuthenticationService.KEY, loginResponse.username);
+      this.username.set(loginResponse.username);
+      return { success: true };
     } catch (error) {
-      // Gérer les erreurs lors de l'appel backend
       console.error('Login failed', error);
       return { success: false, error: 'Login failed' };
     }
@@ -47,18 +44,15 @@ export class AuthenticationService {
       // Appel au backend avec HttpClient et firstValueFrom
       const logoutResponse = await firstValueFrom(
         this.httpClient.post<void>(
-          `${environment.backendUrl}/auth/logout`, // URL du backend
+          `${environment.backendUrl}/auth/logout`,
           {},
-          //userCredentials, // Données des credentials
-          { withCredentials: true } // Pour envoyer et recevoir les cookies de session
+          { withCredentials: true }
         )
       );
-    localStorage.removeItem('username');
-    this.username.set(null);
-    return { success: true }
-
+      localStorage.removeItem('username');
+      this.username.set(null);
+      return { success: true };
     } catch (error) {
-      // Gérer les erreurs lors de l'appel backend
       console.error('Logout failed', error);
       return { success: false, error: 'Logout failed' };
     }

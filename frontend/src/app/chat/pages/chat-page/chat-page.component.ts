@@ -14,7 +14,6 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [ReactiveFormsModule, DatePipe, MessagesComponent, MatButtonModule],
 })
 export class ChatPageComponent {
-
   constructor(
     private authenticationService: AuthenticationService,
     private router: Router
@@ -22,11 +21,9 @@ export class ChatPageComponent {
 
   /** Cette méthode permet de faire la deconnexion du chat */
   async onLogout() {
-
     try {
       const response = await this.authenticationService.logout();
       if (response.success) {
-        // Rediriger vers la page de login après un logout réussi
         this.router.navigate(['/login']);
       } else {
         console.error('Logout failed:', response.error);
@@ -34,9 +31,5 @@ export class ChatPageComponent {
     } catch (error) {
       console.error('An error occurred during login:', error);
     }
-    // this.authenticationService.logout();  
-    // this.router.navigate(['/login']);
- 
   }
-
 }
