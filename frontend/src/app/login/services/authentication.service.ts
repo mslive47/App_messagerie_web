@@ -21,7 +21,6 @@ export class AuthenticationService {
   ): Promise<{ success: boolean; username?: string; error?: string }> {
     // À faire
     try {
-      // Appel au backend avec HttpClient et firstValueFrom
       const loginResponse = await firstValueFrom(
         this.httpClient.post<LoginResponse>(
           `${environment.backendUrl}/auth/login`,
@@ -38,10 +37,10 @@ export class AuthenticationService {
     }
   }
 
+  /* Cette methode permet de supprimer un utilisateur */
   async logout() {
     // À faire
     try {
-      // Appel au backend avec HttpClient et firstValueFrom
       const logoutResponse = await firstValueFrom(
         this.httpClient.post<void>(
           `${environment.backendUrl}/auth/logout`,

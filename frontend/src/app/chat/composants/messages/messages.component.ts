@@ -25,10 +25,9 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
   ) {
-    // Écouter les changements des messages et mettre à jour `firstUser` dynamiquement
   effect(() => {
-    const firstMessage = this.messages()[0];  // Récupère le premier message
-    this.firstUser = firstMessage?.username;  // Met à jour `firstUser`
+    const firstMessage = this.messages()[0];  
+    this.firstUser = firstMessage?.username;  
   });
   }
 

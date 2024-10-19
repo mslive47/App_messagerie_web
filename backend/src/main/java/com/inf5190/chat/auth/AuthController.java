@@ -30,6 +30,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    /**
+     * Cette methode permet d'enregistrer un utilisateur
+     * @param loginRequest les infos de l'utilisateur
+     * @return le cookie
+     * */
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         // À faire...
@@ -42,6 +47,10 @@ public class AuthController {
                 .body(loginResponse);
     }
 
+    /**
+     * Cette methode permet de supprimer un utilisateur
+     * @param sessionCookie les infos de la session
+     * */
     @PostMapping(AUTH_LOGOUT_PATH)
     public ResponseEntity<Void> logout(@CookieValue(SESSION_ID_COOKIE_NAME) Cookie sessionCookie) {
         // À faire...
