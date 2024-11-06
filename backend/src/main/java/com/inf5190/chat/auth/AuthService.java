@@ -1,8 +1,15 @@
 package com.inf5190.chat.auth;
 
+import com.inf5190.chat.auth.repository.FirestoreUserAccount;
+import com.inf5190.chat.auth.repository.UserAccountRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service utilisé par le AuthController
@@ -10,8 +17,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
     private static final String SESSION_ID_COOKIE_NAME = "sid";
+    private UserAccountRepository userAccountRepository;
+    private PasswordEncoder passwordEncoder;
 
-    public AuthService() {
+    public AuthService(UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
+        this.userAccountRepository = userAccountRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -44,6 +55,23 @@ public class AuthService {
                 .sameSite("None")
                 .build();
         return deleteCookie;
+    }
+
+    public void addUser(String name, String password, String encodedPassword) throws ExecutionException, InterruptedException {
+        FirestoreUserAccount userOnFirestore = this.userAccountRepository.getUserAccount(name);
+        //boolean samePassword = this.passwordEncoder.matches(password, encodedPassword);
+        //System.out.println("password correct : " + samePassword);
+        if (userOnFirestore == null) {
+            FirestoreUserAccount firestoreUserAccount = new FirestoreUserAccount(name, encodedPassword);
+            this.userAccountRepository.createUserAccount(firestoreUserAccount);
+        } else {
+            boolean samePassword = this.passwordEncoder.matches(password, userOnFirestore.getEncodedPassword());
+            if(!samePassword) {
+                System.out.println("Passwords do not match");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+        }
+
     }
 
 }

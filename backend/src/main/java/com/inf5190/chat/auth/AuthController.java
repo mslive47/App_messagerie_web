@@ -4,6 +4,7 @@ import com.inf5190.chat.auth.session.SessionData;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,8 @@ import com.inf5190.chat.auth.model.LoginRequest;
 import com.inf5190.chat.auth.model.LoginResponse;
 import com.inf5190.chat.auth.session.SessionManager;
 import jakarta.servlet.http.Cookie;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Contrôleur qui gère l'API de login et logout.
@@ -24,10 +27,12 @@ public class AuthController {
 
     private final SessionManager sessionManager;
     private AuthService authService;
+    private PasswordEncoder passwordEncoder;
 
-    public AuthController(SessionManager sessionManager, AuthService authService) {
+    public AuthController(SessionManager sessionManager, AuthService authService, PasswordEncoder passwordEncoder) {
         this.sessionManager = sessionManager;
         this.authService = authService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -36,14 +41,18 @@ public class AuthController {
      * @return le cookie
      * */
     @PostMapping(AUTH_LOGIN_PATH)
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws ExecutionException, InterruptedException {
         // À faire...
+        String encodedPassword = this.passwordEncoder.encode(loginRequest.password());
+        this.authService.addUser(loginRequest.username(), loginRequest.password(), encodedPassword);
         SessionData session  = new SessionData(loginRequest.username());
-        String sessionId =  this.sessionManager.addSession(session);
+        //String sessionId =  this.sessionManager.addSession(session);
+        // Créer un jeton JWT pour cette session
+        String jwtToken = this.sessionManager.addSession(session);
         LoginResponse loginResponse = new LoginResponse(loginRequest.username());
-        ResponseCookie responseCookie = this.authService.sessionCookie(sessionId);
+        //ResponseCookie responseCookie = this.authService.sessionCookie(sessionId);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer" + jwtToken)
                 .body(loginResponse);
     }
 
