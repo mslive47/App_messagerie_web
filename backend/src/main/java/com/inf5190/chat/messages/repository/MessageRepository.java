@@ -22,7 +22,7 @@ public class MessageRepository {
 
     public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
         // À faire...
-        
+
         if (fromId != null) {
             return this.messages.stream().filter(message -> message.id() >= fromId).collect(Collectors.toList());
         } else  {
@@ -34,9 +34,18 @@ public class MessageRepository {
         // À faire...
 
         long id = idGenerator.getAndIncrement();
-        Message newMessage = new Message(id, message.username(), System.currentTimeMillis(), message.text());
-        messages.add(newMessage);
+        Message newMessage;
+        newMessage = new Message(id, message.username(), message.timestamp(), message.text());
         return newMessage;
     } 
+
+     /**
+     * Cette methode permet d'ajouter un message dans la liste des messages
+     * */
+    public void addMessage(Message message) {
+        this.messages.add(message);
+    }
+
+
 }
 
