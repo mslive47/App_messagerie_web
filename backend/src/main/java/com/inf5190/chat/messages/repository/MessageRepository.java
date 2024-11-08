@@ -3,8 +3,11 @@ package com.inf5190.chat.messages.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
 import com.inf5190.chat.messages.model.Message;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.stream.Collectors;
 
@@ -17,20 +20,14 @@ public class MessageRepository {
     private final List<Message> messages = new ArrayList<Message>();
     private final AtomicLong idGenerator = new AtomicLong(0);
 
-    public List<Message> getMessages(Long fromId) {
+    public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
         // À faire...
-
-        // Si fromId est nul, retourner tous les messages
-        if (fromId == null) {
-            return new ArrayList<>(messages);
-        }
         
-        // Filtrer les messages pour ne retourner que ceux avec un id supérieur à fromId
-        return messages.stream()
-                       .filter(message -> message.id() > fromId)
-                       .collect(Collectors.toList());
-       // return this.messages;
-
+        if (fromId != null) {
+            return this.messages.stream().filter(message -> message.id() >= fromId).collect(Collectors.toList());
+        } else  {
+            return this.messages;
+        }
     }
 
     public Message createMessage(Message message) {

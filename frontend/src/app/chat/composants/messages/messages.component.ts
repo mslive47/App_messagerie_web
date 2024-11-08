@@ -1,49 +1,40 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, effect, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewChecked,
+  effect,
+  OnInit,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { Message } from '../../model/message.model';
 import { MessagesService } from '../../services/messages.service';
 import { NewMessageFormComponent } from '../new-message-form/new-message-form.component';
-import { Subscription } from 'rxjs';
-import { WebSocketService, WebSocketEvent } from 'src/app/websocket/web-socket.service'; // Import WebSocketService
-
 
 @Component({
   selector: 'app-messages',
   standalone: true,
   imports: [DatePipe, NewMessageFormComponent],
   templateUrl: './messages.component.html',
-  styleUrl: './messages.component.css'
+  styleUrl: './messages.component.css',
 })
-export class MessagesComponent implements AfterViewChecked,  OnInit, OnDestroy {
+export class MessagesComponent implements OnInit, AfterViewChecked {
   messages = this.messagesService.getMessages();
   username = this.authenticationService.getUsername();
 
-  private wsSubscription: Subscription = Subscription.EMPTY;  // Initialisation par défaut
-
   @ViewChild('chatContainer') chatContainer!: ElementRef;
-  
-  currentUser = this.username() ?? "";
+
+  currentUser = this.username() ?? '';
   firstUser: string | undefined;
 
   constructor(
     private messagesService: MessagesService,
-    private authenticationService: AuthenticationService,
-    private webSocketService: WebSocketService
+    private authenticationService: AuthenticationService
   ) {
-    // Écouter les changements des messages et mettre à jour `firstUser` dynamiquement
-  effect(() => {
-    const firstMessage = this.messages()[0];  // Récupère le premier message
-    this.firstUser = firstMessage?.username;  // Met à jour `firstUser`
-  });
-  }
-
-  ngOnInit(): void {
-    this.messagesService.fetchMessages(); // Chargement des messages au démarrage
-    this.wsSubscription = this.webSocketService.connect().subscribe((event: WebSocketEvent) => {
-      if (event === "notif") {
-        this.messagesService.fetchMessages(); // Appelle une méthode pour rafraîchir les messages
-      }
+    effect(() => {
+      const firstMessage = this.messages()[0];
+      this.firstUser = firstMessage?.username;
     });
   }
 
@@ -68,12 +59,19 @@ export class MessagesComponent implements AfterViewChecked,  OnInit, OnDestroy {
 
   /** Cette méthode permet de faire un défilement automatique */
   scrollToBottom(): void {
-    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+    this.chatContainer.nativeElement.scrollTop =
+      this.chatContainer.nativeElement.scrollHeight;
   }
 
-  ngOnDestroy() {
-    this.wsSubscription.unsubscribe();  // Se désabonne de l'Observable à la destruction du composant
-    this.webSocketService.disconnect();  // Déconnecte le WebSocket
+  /** Appeler fetchMessages() lors du chargement de la page pour afficher les messages. */
+  ngOnInit(): void {
+    this.messagesService
+      .fetchMessages(0) // ID=0 ou null pour récupérer tous les messages initiaux
+      .then(() => {
+        console.log('Messages fetched successfully on init.');
+      })
+      .catch((error) => {
+        console.error('Error fetching messages on init:', error);
+      });
   }
-
 }

@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @RestController
 public class MessageController {
-     public static final String MESSAGES_PATH = "/messages";
+    public static final String MESSAGES_PATH = "/auth/chat";
+    public static final String MESSAGE_PATH_WITH_ID = "/auth/chat/{id}";
+
 
     private MessageRepository messageRepository;
     private WebSocketManager webSocketManager;
@@ -31,28 +33,21 @@ public class MessageController {
     }
 
     // À faire...
-
-     /**
-     * Récupère tous les messages.
-     *
-     * @return la liste des messages.
-     */
-    @GetMapping(MESSAGES_PATH)
-    public ResponseEntity<List<Message>> getMessages(@RequestParam(required = false) Long fromId){
-        List<Message> messages = messageRepository.getMessages(fromId);
-        return ResponseEntity.ok(messages);
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(MESSAGES_PATH)
+    public Message createMessage(@RequestBody Message message) {
+        Message postedMessage = this.messageService.createMessage(message);
+        return postedMessage;
     }
 
-    /**
-     * Publie un nouveau message.
-     *
-     * @param message le message à publier.
-     * @return le message publié.
-     */
-    @PostMapping(MESSAGES_PATH)
-    public ResponseEntity<Message> createMessage(@RequestBody Message message) {
-        Message createdMessage = messageRepository.createMessage(message);
-        webSocketManager.notifySessions(); // Appel d'une notification générale via WebSocketManager
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage);
-    }    
+    @GetMapping(MESSAGES_PATH)
+    public @ResponseBody List<Message> getMessages(@RequestParam(required = false) Long fromId) {
+        return this.messageService.getMessages(fromId);
+    }
+
+    @GetMapping(MESSAGE_PATH_WITH_ID)
+    public @ResponseBody List<Message> getMessagesById(@PathVariable Long id){
+        return this.messageService.getMessages(id);
+    }
+
 }
