@@ -1,12 +1,16 @@
 package com.inf5190.chat.messages;
 
+import com.inf5190.chat.auth.session.SessionData;
+import com.inf5190.chat.auth.session.SessionManager;
 import com.inf5190.chat.messages.model.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Contrôleur qui gère l'API de messages.
@@ -18,11 +22,13 @@ public class MessageController {
 
     private WebSocketManager webSocketManager;
     private MessageService messageService;
+    private SessionManager sessionManager;
 
-    public MessageController(MessageService messageService,
-                             WebSocketManager webSocketManager) {
+    public MessageController(WebSocketManager webSocketManager,
+                             MessageService messageService, SessionManager sessionManager) {
         this.webSocketManager = webSocketManager;
         this.messageService = messageService;
+        this.sessionManager = sessionManager;
     }
 
     // À faire...
@@ -33,9 +39,17 @@ public class MessageController {
      * */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(MESSAGES_PATH)
-    public Message createMessage(@RequestBody Message message) {
-        Message postedMessage = this.messageService.createMessage(message);
-        return postedMessage;
+    public Message createMessage(@RequestHeader("Authorization") String authHeader, @RequestBody Message message)
+            throws ExecutionException, InterruptedException {
+        // Check if the header contains a Bearer token
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Missing or invalid Authorization header");
+        }
+
+        // Extract the JWT and get the authenticated username
+        String jwtToken = authHeader.substring(6); // Remove "Bearer" prefix
+        SessionData userData = this.sessionManager.getSession(jwtToken);
+        return this.messageService.createMessage(userData.username(), message);
     }
 
     /**
@@ -44,7 +58,8 @@ public class MessageController {
      * @return la liste des messages
      * */
     @GetMapping(MESSAGES_PATH)
-    public @ResponseBody List<Message> getMessages(@RequestParam(required = false) Long fromId) {
+    public @ResponseBody List<Message> getMessages(@RequestParam(required = false) String fromId)
+            throws ExecutionException, InterruptedException {
         return this.messageService.getMessages(fromId);
     }
 
@@ -54,7 +69,8 @@ public class MessageController {
      * @return le message
      * */
     @GetMapping(MESSAGE_PATH_WITH_ID)
-    public @ResponseBody List<Message> getMessagesById(@PathVariable Long id){
+    public @ResponseBody List<Message> getMessagesById(@PathVariable String id)
+            throws ExecutionException, InterruptedException {
         return this.messageService.getMessages(id);
     }
 }

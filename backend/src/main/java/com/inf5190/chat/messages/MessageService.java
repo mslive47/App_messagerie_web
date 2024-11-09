@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service utilisé par le MessageController.
@@ -27,8 +28,9 @@ public class MessageService {
      * @param message le message à creer
      * @return receiveMessage le message créé
      * */
-    public Message createMessage(Message message) {
-        Message receiveMessage = this.messageRepository.createMessage(message);
+    public Message createMessage(String username, Message message)
+            throws ExecutionException, InterruptedException {
+        Message receiveMessage = this.messageRepository.createMessage(username, message);
         this.messageRepository.addMessage(receiveMessage);
         this.webSocketManager.notifySessions();
         return receiveMessage;
@@ -39,7 +41,8 @@ public class MessageService {
      * @param fromId, l'id du message
      * @return la liste de messages
      * */
-    public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
+    public List<Message> getMessages(@RequestParam(required = false) String fromId)
+            throws ExecutionException, InterruptedException {
         return this.messageRepository.getMessages(fromId);
     }
  }

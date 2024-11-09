@@ -26,8 +26,8 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
     private authenticationService: AuthenticationService,
   ) {
   effect(() => {
-    const firstMessage = this.messages()[0];  
-    this.firstUser = firstMessage?.username;  
+    const firstMessage = this.messagesService.getLastMessage();  
+    this.firstUser = this.currentUser;  
   });
   }
 
@@ -57,7 +57,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
 
     /** Appeler fetchMessages() lors du chargement de la page pour afficher les messages. */
     ngOnInit(): void {
-      this.messagesService.fetchMessages(0) // ID=0 ou null pour récupérer tous les messages initiaux
+      this.messagesService.fetchMessages('') // ID=0 ou null pour récupérer tous les messages initiaux
         .then(() => {
           console.log("Messages fetched successfully on init.");
         })

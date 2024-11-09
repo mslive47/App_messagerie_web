@@ -36,7 +36,7 @@ export class NewMessageFormComponent {
       this.messageForm.value.msg
     ) {
       this.messagesService.postMessage({
-        id : this.messageId,
+        id : this.messageId.toString(),
         text: this.messageForm.value.msg,
         username: this.username()!,
         timestamp: Date.now(),
@@ -45,6 +45,7 @@ export class NewMessageFormComponent {
     this.messageForm.reset();
     this.scroll.emit;
     this.messageId++;
+    //this.messagesService.fetchMessages('');
   }
 
 }

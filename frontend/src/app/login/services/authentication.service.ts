@@ -1,7 +1,7 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { UserCredentials } from '../model/user-credentials';
 import { firstValueFrom, Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LoginResponse } from '../model/login-response';
 
@@ -10,10 +10,13 @@ import { LoginResponse } from '../model/login-response';
 })
 export class AuthenticationService {
   static KEY = 'username';
+  static TOKEN_KEY = 'jwtToken';
   private username = signal<string | null>(null);
+  private jwtToken = signal<string | null>(null);
 
   constructor(private httpClient: HttpClient) {
     this.username.set(localStorage.getItem(AuthenticationService.KEY));
+    this.jwtToken.set(localStorage.getItem(AuthenticationService.TOKEN_KEY));
   }
 
   async login(
@@ -25,12 +28,21 @@ export class AuthenticationService {
         this.httpClient.post<LoginResponse>(
           `${environment.backendUrl}/auth/login`,
           userCredentials,
-          { withCredentials: true }
+          //{ withCredentials: true }
+          { observe: 'response' } // Observe entire response to get header
         )
       );
-      localStorage.setItem(AuthenticationService.KEY, loginResponse.username);
-      this.username.set(loginResponse.username);
-      return { success: true };
+      //console.log(loginResponse);
+      const jwtToken = loginResponse.headers.get('Authorization')?.replace('Bearer ', '');
+      if (jwtToken) {
+        localStorage.setItem(AuthenticationService.TOKEN_KEY, jwtToken);
+        localStorage.setItem(AuthenticationService.KEY, loginResponse.body?.username ?? '');
+        this.jwtToken.set(jwtToken);
+        this.username.set(loginResponse.body?.username ?? '');
+      } 
+      //localStorage.setItem(AuthenticationService.KEY, loginResponse.username);
+      //this.username.set(loginResponse.username);
+      return { success: true, username: loginResponse.body?.username };
     } catch (error) {
       console.error('Login failed', error);
       return { success: false, error: 'Login failed' };
@@ -41,7 +53,7 @@ export class AuthenticationService {
   async logout() {
     // À faire
     try {
-      const logoutResponse = await firstValueFrom(
+      /*const logoutResponse = await firstValueFrom(
         this.httpClient.post<void>(
           `${environment.backendUrl}/auth/logout`,
           {},
@@ -49,7 +61,16 @@ export class AuthenticationService {
         )
       );
       localStorage.removeItem('username');
+      this.username.set(null);*/
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.jwtToken()}`);
+      await firstValueFrom(
+        this.httpClient.post<void>(`${environment.backendUrl}/auth/logout`, {}, { headers })
+      );
+
+      localStorage.removeItem(AuthenticationService.KEY);
+      localStorage.removeItem(AuthenticationService.TOKEN_KEY);
       this.username.set(null);
+      this.jwtToken.set(null);
       return { success: true };
     } catch (error) {
       console.error('Logout failed', error);
@@ -59,5 +80,14 @@ export class AuthenticationService {
 
   getUsername(): Signal<string | null> {
     return this.username;
+  }
+
+  getToken(): string | null {
+    return this.jwtToken();
+  }
+
+  // Helper to add Authorization header with JWT token
+  getAuthHeaders(): HttpHeaders {
+    return new HttpHeaders().set('Authorization', `Bearer ${this.getToken()}`);
   }
 }
