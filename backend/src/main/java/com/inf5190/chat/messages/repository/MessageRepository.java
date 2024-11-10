@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import com.google.cloud.firestore.*;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import com.inf5190.chat.messages.model.Message;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
  */
 @Repository
 public class MessageRepository {
-    private final List<Message> messages = new ArrayList<Message>();
+    //private final List<Message> messages = new ArrayList<Message>();
     private final AtomicLong idGenerator = new AtomicLong(0);
     private static final String COLLECTION_NAME = "messages";
     private final Firestore firestore = FirestoreClient.getFirestore();
@@ -72,7 +73,8 @@ public class MessageRepository {
                         document.getId(),
                         firestoreMessage.getUsername(),
                         firestoreMessage.getTimestamp().toDate().getTime(),
-                        firestoreMessage.getText()
+                        firestoreMessage.getText(),
+                        firestoreMessage.getImageUrl()
                 ));
             }
         }
@@ -86,7 +88,7 @@ public class MessageRepository {
      * @param message le message à creer
      * @return receiveMessage le message créé
      * */
-    public Message createMessage(String username, Message message) throws ExecutionException, InterruptedException {
+    public Message createMessage(String username, NewMessageRequest message) throws ExecutionException, InterruptedException {
         // À faire...
         Message userMessage = null;
         if(message.username().equals(username)) {
@@ -97,14 +99,15 @@ public class MessageRepository {
             long timestampLong = timestamp.toDate().getTime();
 
             // Préparer le message pour Firestore, en ignorant l'ID et le timestamp reçus du frontend
-            FirestoreMessage firestoreMessage = new FirestoreMessage(message.username(), timestamp, message.text());
+            FirestoreMessage firestoreMessage = new FirestoreMessage(message.username(), timestamp, message.text(), null);
 
             // Ajouter le message à Firestore, qui génère un ID unique
             DocumentReference documentReference = firestore.collection(COLLECTION_NAME).add(firestoreMessage).get();
 
             // Récupérer l'ID Firestore et le timestamp pour retourner un Message au frontend
             String generatedId = documentReference.getId();
-            userMessage = new Message(generatedId, message.username(), timestampLong, message.text());
+            String imageUrl = documentReference.getPath(); //pour url image à effacer si ca marche pas
+            userMessage = new Message(generatedId, message.username(), timestampLong, message.text(), imageUrl);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user dont have the permission");
         }
@@ -115,8 +118,8 @@ public class MessageRepository {
     /**
      * Cette methode permet d'ajouter un message dans la liste des messages
      * */
-    public void addMessage(Message message) {
-        this.messages.add(message);
-    }
+   // public void addMessage(Message message) {
+       // this.messages.add(message);
+    //}
 
 }

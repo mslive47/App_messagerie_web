@@ -1,5 +1,5 @@
 import { Injectable, Signal, signal } from '@angular/core';
-import { Message } from '../model/message.model';
+import { Message, NewMessageRequest } from '../model/message.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from 'rxjs';
@@ -33,11 +33,11 @@ export class MessagesService {
   }
 
   async postMessage(
-    message: Message
+    message: NewMessageRequest
   ): Promise<{ success: boolean; error?: string }> {
     // À faire
     try {
-      const messageResponse = await firstValueFrom(
+      const messageResponse  = await firstValueFrom(
         this.httpClient.post<Message>(
           `${environment.backendUrl}/auth/chat`,
           message,

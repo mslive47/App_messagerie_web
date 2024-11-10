@@ -3,6 +3,7 @@ package com.inf5190.chat.messages;
 import com.inf5190.chat.auth.session.SessionData;
 import com.inf5190.chat.auth.session.SessionManager;
 import com.inf5190.chat.messages.model.Message;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.inf5190.chat.messages.repository.MessageRepository;
@@ -34,12 +35,12 @@ public class MessageController {
     // À faire...
     /**
      * Cette methode permet de créer un message
-     * @param message le message à creer
+     * @param newMessageRequest le message à creer
      * @return receiveMessage le message créé
      * */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(MESSAGES_PATH)
-    public Message createMessage(@RequestHeader("Authorization") String authHeader, @RequestBody Message message)
+    public Message createMessage(@RequestHeader("Authorization") String authHeader, @RequestBody NewMessageRequest newMessageRequest)
             throws ExecutionException, InterruptedException {
         // Check if the header contains a Bearer token
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
@@ -49,7 +50,7 @@ public class MessageController {
         // Extract the JWT and get the authenticated username
         String jwtToken = authHeader.substring(6); // Remove "Bearer" prefix
         SessionData userData = this.sessionManager.getSession(jwtToken);
-        return this.messageService.createMessage(userData.username(), message);
+        return this.messageService.createMessage(userData.username(), newMessageRequest);
     }
 
     /**

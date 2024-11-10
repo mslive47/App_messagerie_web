@@ -1,6 +1,7 @@
 package com.inf5190.chat.messages;
 
 import com.inf5190.chat.messages.model.Message;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,13 @@ public class MessageService {
 
     /**
      * Cette methode permet de créer un message
-     * @param message le message à creer
+     * @param newMessageRequest le message à creer
      * @return receiveMessage le message créé
      * */
-    public Message createMessage(String username, Message message)
+    public Message createMessage(String username, NewMessageRequest newMessageRequest)
             throws ExecutionException, InterruptedException {
-        Message receiveMessage = this.messageRepository.createMessage(username, message);
-        this.messageRepository.addMessage(receiveMessage);
+        Message receiveMessage = this.messageRepository.createMessage(username, newMessageRequest);
+        //this.messageRepository.addMessage(receiveMessage);
         this.webSocketManager.notifySessions();
         return receiveMessage;
     }
