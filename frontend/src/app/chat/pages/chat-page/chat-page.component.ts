@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './chat-page.component.html',
   styleUrls: ['./chat-page.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe, MessagesComponent, MatButtonModule],
+  imports: [ReactiveFormsModule, MessagesComponent, MatButtonModule],
 })
 export class ChatPageComponent {
   constructor(

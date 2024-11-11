@@ -3,3 +3,18 @@
   flex-direction: column;
   align-items: center;
 }
+
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.green-border {
+  border: 2px solid green !important;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}

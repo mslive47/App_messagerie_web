@@ -6,6 +6,7 @@
           <mat-label>Nom d'usager</mat-label>
           <input
             matInput
+            [class.green-border]="loginSuccess"
             (blur)="verifyName()"
             (focus)="resetName()"
             name="username"
@@ -22,6 +23,7 @@
           <mat-label>Mot de passe</mat-label>
           <input
             matInput
+            [class.green-border]="loginSuccess"
             (blur)="verifyPassWord()"
             (focus)="resetPass()"
             name="password"
@@ -40,4 +42,13 @@
       </button>
     </div>
   </form>
+  @if(loginSuccess) {
+    <div class="success-message">
+      Connexion réussie!
+    </div>
+  }@else if (loginError) {
+    <div class="error-message">
+      {{ loginError }}
+    </div>
+  }
 </div>
