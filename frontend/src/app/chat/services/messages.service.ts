@@ -70,8 +70,11 @@ export class MessagesService {
       const currentMessages = this.messages();
       if (currentMessages.length > 0) {
         const lastMessage = currentMessages[currentMessages.length - 1];
-        const newMessages = messageResponse.filter(
+        /*const newMessages = messageResponse.filter(
           (msg) => msg.id > lastMessage.id
+        );*/
+        const newMessages = messageResponse.filter(
+          (msg) => !currentMessages.some(existingMsg => existingMsg.id === msg.id)
         );
         this.messages.set([...currentMessages, ...newMessages]);
       } else {

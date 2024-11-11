@@ -28,7 +28,7 @@ public class CorsConfig {
                                 CorsConfig.this.allowedOrigins.split(","))
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("Authorization", "Content-Type")
-                        .exposedHeaders(HttpHeaders.AUTHORIZATION) // Expose the Authorization header
+                        .exposedHeaders(HttpHeaders.AUTHORIZATION)
                         .allowCredentials(true);
             }
         };

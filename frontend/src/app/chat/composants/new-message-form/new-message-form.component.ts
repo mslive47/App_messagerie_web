@@ -42,30 +42,23 @@ export class NewMessageFormComponent {
       this.messageForm.value.msg
     ) {
       const text = this.messageForm.value.msg;
-      await this.processFile();// si y a un pb ajouter await ici et ajouter async onpublish
+      await this.processFile();
+      console.log(this.imageData?.data);
+      console.log(this.imageData?.type);
       if (text || this.imageData) {
         this.messagesService.postMessage({
-          //id : this.messageId.toString(),
           text: this.messageForm.value.msg ?? '',
           username: this.username()!,
           imageData: this.imageData,
-          //timestamp: Date.now(),
         });
       }
-      /*this.messagesService.postMessage({
-        //id : this.messageId.toString(),
-        text: this.messageForm.value.msg,
-        username: this.username()!,
-        imageData: null,
-        //timestamp: Date.now(),
-      });*/
+   
     }
     this.messageForm.reset();
     this.scroll.emit;
     this.messageId++;
     this.file = null;
     this.imageData = null;
-    //this.messagesService.fetchMessages('');
   }
 
   get hasImage() {

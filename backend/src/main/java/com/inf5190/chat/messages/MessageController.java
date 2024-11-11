@@ -10,6 +10,7 @@ import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -41,14 +42,13 @@ public class MessageController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(MESSAGES_PATH)
     public Message createMessage(@RequestHeader("Authorization") String authHeader, @RequestBody NewMessageRequest newMessageRequest)
-            throws ExecutionException, InterruptedException {
-        // Check if the header contains a Bearer token
+            throws ExecutionException, InterruptedException, IOException {
+
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Missing or invalid Authorization header");
         }
 
-        // Extract the JWT and get the authenticated username
-        String jwtToken = authHeader.substring(6); // Remove "Bearer" prefix
+        String jwtToken = authHeader.substring(6);
         SessionData userData = this.sessionManager.getSession(jwtToken);
         return this.messageService.createMessage(userData.username(), newMessageRequest);
     }

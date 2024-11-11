@@ -25,10 +25,10 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
   ) {
-  effect(() => {
+  /*effect(() => {
     const firstMessage = this.messagesService.getLastMessage();  
     this.firstUser = this.currentUser;  
-  });
+  });*/
   }
 
   /** Afficher la date seulement si la date du message précédent est différente du message courant. */

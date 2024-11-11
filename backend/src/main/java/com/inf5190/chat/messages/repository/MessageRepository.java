@@ -1,11 +1,17 @@
 package com.inf5190.chat.messages.repository;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import com.google.cloud.firestore.*;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import com.google.firebase.cloud.StorageClient;
 import com.inf5190.chat.messages.model.NewMessageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -32,6 +38,10 @@ import java.util.concurrent.ExecutionException;
 public class MessageRepository {
     //private final List<Message> messages = new ArrayList<Message>();
     private final AtomicLong idGenerator = new AtomicLong(0);
+
+    private static final Storage STORAGE = StorageOptions.getDefaultInstance().getService();
+    private static final String BUCKET_NAME = "inf5190-chat-faee1.firebasestorage.app"; // Remplacez par le nom de votre bucket
+
     private static final String COLLECTION_NAME = "messages";
     private final Firestore firestore = FirestoreClient.getFirestore();
 
@@ -42,12 +52,6 @@ public class MessageRepository {
      * */
     public List<Message> getMessages(@RequestParam(required = false) String fromId)
             throws ExecutionException, InterruptedException {
-        // À faire...
-       /* if (fromId != null) {
-            return this.messages.stream().filter(message -> Long.parseLong(message.id()) >= fromId).collect(Collectors.toList());
-        } else  {
-            return this.messages;
-        }*/
 
         List<Message> messages = new ArrayList<>();
 
@@ -55,16 +59,12 @@ public class MessageRepository {
         Query query = messagesCollection.orderBy("timestamp", Query.Direction.ASCENDING).limit(20);
 
         if (fromId != null) {
-            // Récupérer le document de référence pour fromId
             DocumentSnapshot fromSnapshot = messagesCollection.document(fromId).get().get();
-
-            // Appliquer startAfter seulement si le document existe
             if (fromSnapshot.exists()) {
                 query = query.startAfter(fromSnapshot);
             }
         }
-
-        // Exécuter la requête et ajouter les messages dans la liste
+        
         ApiFuture<QuerySnapshot> future = query.get();
         for (DocumentSnapshot document : future.get().getDocuments()) {
             FirestoreMessage firestoreMessage = document.toObject(FirestoreMessage.class);
@@ -88,26 +88,26 @@ public class MessageRepository {
      * @param message le message à creer
      * @return receiveMessage le message créé
      * */
-    public Message createMessage(String username, NewMessageRequest message) throws ExecutionException, InterruptedException {
+    public Message createMessage(String username, NewMessageRequest message) throws ExecutionException, InterruptedException, IOException {
         // À faire...
         Message userMessage = null;
-        if(message.username().equals(username)) {
-            // Créer un timestamp côté backend
-            Timestamp timestamp = Timestamp.now();
+        String imageUrl = null;
+        if(message.getUsername().equals(username)) {
 
-            // Convertir le timestamp en millisecondes
+            Timestamp timestamp = Timestamp.now();
             long timestampLong = timestamp.toDate().getTime();
 
-            // Préparer le message pour Firestore, en ignorant l'ID et le timestamp reçus du frontend
-            FirestoreMessage firestoreMessage = new FirestoreMessage(message.username(), timestamp, message.text(), null);
-
-            // Ajouter le message à Firestore, qui génère un ID unique
+            FirestoreMessage firestoreMessage = new FirestoreMessage(message.getUsername(), timestamp, message.getText(), null);
             DocumentReference documentReference = firestore.collection(COLLECTION_NAME).add(firestoreMessage).get();
 
-            // Récupérer l'ID Firestore et le timestamp pour retourner un Message au frontend
             String generatedId = documentReference.getId();
-            String imageUrl = documentReference.getPath(); //pour url image à effacer si ca marche pas
-            userMessage = new Message(generatedId, message.username(), timestampLong, message.text(), imageUrl);
+
+            if(message.getImageData() != null) {
+                imageUrl = this.uploadImage(generatedId, message.getImageData().getData(), message.getImageData().getType());
+                System.out.println("image processs");
+            }
+            documentReference.update("imageUrl", imageUrl);
+            userMessage = new Message(generatedId, message.getUsername(), timestampLong, message.getText(), imageUrl);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user dont have the permission");
         }
@@ -116,10 +116,19 @@ public class MessageRepository {
     }
 
     /**
-     * Cette methode permet d'ajouter un message dans la liste des messages
+     * Cette methode permet d'obtenir l'url de l'image
+     * @param messageId, l'id du message
+     * @param base64Image, la data de l'image
+     * @param imageType, le type de l'image
+     * @return l'url de limage
      * */
-   // public void addMessage(Message message) {
-       // this.messages.add(message);
-    //}
+    public String uploadImage(String messageId, String base64Image, String imageType) throws IOException {
+        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+        String path = String.format("images/%s.%s", messageId, imageType);
+        Bucket bucket = StorageClient.getInstance().bucket();
+        bucket.create(path, imageBytes, Bucket.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PUBLIC_READ));
+        return String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME, path);
+    }
+
 
 }

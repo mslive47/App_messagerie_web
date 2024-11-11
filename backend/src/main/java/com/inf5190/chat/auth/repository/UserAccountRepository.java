@@ -14,35 +14,40 @@ import com.google.firebase.cloud.FirestoreClient;
 public class UserAccountRepository {
     private static final String COLLECTION_NAME = "userAccounts";
     private final Firestore firestore = FirestoreClient.getFirestore();
+
+    /**
+     * Cette methode permet d'obtenir un utilisateur de la db
+     * @param username le nom de l'utilisateur
+     * @return l'utilisateur
+     * */
     public FirestoreUserAccount getUserAccount(String username) throws
             InterruptedException, ExecutionException {
-        //throw new UnsupportedOperationException("A faire");
-        // Obtenir une référence au document dans la collection "userAccounts" avec le nom d'utilisateur comme ID
-        DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(username);
 
-        // Lire le document Firestore
+        DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(username);
         ApiFuture<DocumentSnapshot> future = docRef.get();
         DocumentSnapshot document = future.get();
 
-        // Vérifier si le document existe
         if (!document.exists()) {
-            return null; // Retourner null si le compte utilisateur n'existe pas
+            return null;
         }
 
-        // Convertir le document en un objet FirestoreUserAccount et le retourner
         return document.toObject(FirestoreUserAccount.class);
     }
+    /**
+     * Cette methode permet d'enregistrer un utilisateur de la db
+     * @param userAccount le compte de l'utilisateur
+     * */
     public void createUserAccount(FirestoreUserAccount userAccount) throws
             InterruptedException, ExecutionException {
-        // Obtenir une référence à la collection "userAccounts"
-        DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(userAccount.getUsername());
+        FirestoreUserAccount userOnFirestore = this.getUserAccount(userAccount.getUsername());
+        if (userOnFirestore == null) {
+            DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(userAccount.getUsername());
+            ApiFuture<WriteResult> future = docRef.set(userAccount);
+            WriteResult result = future.get();
+            System.out.println("User account created at: " + result.getUpdateTime());
+        } else  {
+            System.out.println("user already in db");
+        }
 
-        // Utiliser la méthode set() pour enregistrer le compte utilisateur dans Firestore
-        ApiFuture<WriteResult> future = docRef.set(userAccount);
-
-        // Attendre l'achèvement de l'opération d'écriture (optionnel)
-        WriteResult result = future.get();
-        System.out.println("User account created at: " + result.getUpdateTime());
-        //throw new UnsupportedOperationException("A faire");
     }
 }

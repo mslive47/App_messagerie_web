@@ -1,5 +1,8 @@
 package com.inf5190.chat.auth.repository;
 
+/**
+ * Représente un message stocké dans firestore.
+ */
 public class FirestoreUserAccount {
     private String username;
     private String encodedPassword;
