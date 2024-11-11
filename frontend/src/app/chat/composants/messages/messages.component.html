@@ -3,7 +3,7 @@
     @for( m of messages(); track $index; let i = $index) {
       @if (currentUser === m.username) {
         <div >
-          @if(showDateHeader(messages(), i)|| sameUserMessage(messages()) || firstMessageByUser(messages(), i)) {
+          @if(showDateHeader(messages(), i)) {
           <h3>
             {{ m.timestamp | date }}
           </h3>
@@ -16,6 +16,11 @@
           }
         </div>
       } @else {
+        @if(showDateHeader(messages(), i)) {
+          <h3>
+            {{ m.timestamp | date }}
+          </h3>
+        }
         <p class="right">
           {{ m.text }} : {{ m.username }} [{{ m.timestamp | date : 'hh:mm' }}] 
         </p>

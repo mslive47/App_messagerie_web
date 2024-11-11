@@ -15,6 +15,7 @@ import { NewMessageFormComponent } from '../new-message-form/new-message-form.co
 export class MessagesComponent implements OnInit, AfterViewChecked {
   messages = this.messagesService.getMessages();
   username = this.authenticationService.getUsername();
+  dateHeader : boolean = true;
 
   @ViewChild('chatContainer') chatContainer!: ElementRef;
   
@@ -86,6 +87,10 @@ export class MessagesComponent implements OnInit, AfterViewChecked {
     }
     const firstUsername = messages[0].username;
     return messages.every(message => message.username === firstUsername);
+  }
+
+  dateOnDiv() : void {
+    this.dateHeader= false;
   }
     
 }

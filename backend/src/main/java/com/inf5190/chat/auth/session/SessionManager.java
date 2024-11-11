@@ -66,7 +66,7 @@ public class SessionManager {
         if (revokedTokens.contains(jwtToken)) {
             return null;
         }
-        
+
         try {
             Jws<Claims> claimsJws = this.jwtParser.parseSignedClaims(jwtToken);
             Claims claims = claimsJws.getPayload();
