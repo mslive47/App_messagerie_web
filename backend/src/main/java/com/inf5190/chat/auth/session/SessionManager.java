@@ -1,9 +1,6 @@
 package com.inf5190.chat.auth.session;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import io.jsonwebtoken.*;
@@ -25,6 +22,7 @@ public class SessionManager {
     private final SecretKey secretKey;
     private final JwtParser jwtParser;
     private final Map<String, SessionData> sessions = new HashMap<String, SessionData>();
+    private final Set<String> revokedTokens = new HashSet<>();
 
     public SessionManager() {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY_BASE64));
@@ -53,10 +51,10 @@ public class SessionManager {
 
     /**
      * Cette methode permet de supprimer la session
-     * @param sessionId, l'id de la session
+     * @param token, le json web token
      * */
-    public void removeSession(String sessionId) {
-        this.sessions.remove(sessionId);
+    public void removeSession(String token) {
+        this.revokedTokens.add(token);;
     }
 
     /**
@@ -65,6 +63,10 @@ public class SessionManager {
      * @return la session
      * */
     public SessionData getSession(String jwtToken) {
+        if (revokedTokens.contains(jwtToken)) {
+            return null;
+        }
+        
         try {
             Jws<Claims> claimsJws = this.jwtParser.parseSignedClaims(jwtToken);
             Claims claims = claimsJws.getPayload();

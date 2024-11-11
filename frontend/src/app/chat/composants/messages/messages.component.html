@@ -2,8 +2,8 @@
   <div #chatContainer class="messages">
     @for( m of messages(); track $index; let i = $index) {
       @if (currentUser === m.username) {
-        <div>
-          @if(showDateHeader(messages(), i)) {
+        <div >
+          @if(showDateHeader(messages(), i)|| sameUserMessage(messages()) || firstMessageByUser(messages(), i)) {
           <h3>
             {{ m.timestamp | date }}
           </h3>
@@ -12,7 +12,7 @@
             [{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}
           </p>
           @if (m.imageUrl) {
-            <img [src]="m.imageUrl" alt="Image" class="message-image" />
+            <img [src]="m.imageUrl" alt="Image" />
           }
         </div>
       } @else {

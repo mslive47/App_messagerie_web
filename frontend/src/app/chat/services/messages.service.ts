@@ -41,11 +41,9 @@ export class MessagesService {
         this.httpClient.post<Message>(
           `${environment.backendUrl}/auth/chat`,
           message,
-          { headers: this.getAuthHeaders() } // Add auth headers
-          //{ withCredentials: true }
+          { headers: this.getAuthHeaders() } 
         )
       );
-      //console.log(messageResponse);
       this.lastMessageId = messageResponse.id;
       this.messages.set([...this.messages(), messageResponse]);
       console.log('message id envoye : ' + this.lastMessageId);
@@ -70,9 +68,6 @@ export class MessagesService {
       const currentMessages = this.messages();
       if (currentMessages.length > 0) {
         const lastMessage = currentMessages[currentMessages.length - 1];
-        /*const newMessages = messageResponse.filter(
-          (msg) => msg.id > lastMessage.id
-        );*/
         const newMessages = messageResponse.filter(
           (msg) => !currentMessages.some(existingMsg => existingMsg.id === msg.id)
         );
@@ -101,15 +96,13 @@ export class MessagesService {
     return currentMessages.length > 0 ? currentMessages[currentMessages.length - 1] : undefined;
   }
 
-  // Helper function to set Authorization headers
+  
   private getAuthHeaders(): HttpHeaders {
     const jwtToken = this.authService.getToken();
-    //console.log(jwtToken);
     if (!jwtToken) {
       console.error('JWT token is missing');
     }
     const header = new HttpHeaders().set('Authorization', `${jwtToken}`);
-    console.log(header);
     return header;
   }
 }

@@ -64,7 +64,7 @@ public class MessageRepository {
                 query = query.startAfter(fromSnapshot);
             }
         }
-        
+
         ApiFuture<QuerySnapshot> future = query.get();
         for (DocumentSnapshot document : future.get().getDocuments()) {
             FirestoreMessage firestoreMessage = document.toObject(FirestoreMessage.class);
