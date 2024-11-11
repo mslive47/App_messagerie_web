@@ -38,19 +38,17 @@ public class AuthController {
     /**
      * Cette methode permet d'enregistrer un utilisateur
      * @param loginRequest les infos de l'utilisateur
-     * @return le cookie
+     * @return le json web token
      * */
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws ExecutionException, InterruptedException {
-        // À faire...
+
         String encodedPassword = this.passwordEncoder.encode(loginRequest.password());
         this.authService.addUser(loginRequest.username(), loginRequest.password(), encodedPassword);
         SessionData session  = new SessionData(loginRequest.username());
-        //String sessionId =  this.sessionManager.addSession(session);
-        // Créer un jeton JWT pour cette session
         String jwtToken = this.sessionManager.addSession(session);
         LoginResponse loginResponse = new LoginResponse(loginRequest.username());
-        //ResponseCookie responseCookie = this.authService.sessionCookie(sessionId);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer" + jwtToken)
                 .body(loginResponse);

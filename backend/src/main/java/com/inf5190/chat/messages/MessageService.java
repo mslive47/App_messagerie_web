@@ -1,19 +1,28 @@
 package com.inf5190.chat.messages;
 
+
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import com.inf5190.chat.messages.model.ChatImageData;
 import com.inf5190.chat.messages.model.Message;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
+
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service utilisé par le MessageController.
  */
 @Service
 public class MessageService {
-
     private MessageRepository messageRepository;
     private WebSocketManager webSocketManager;
 
@@ -24,12 +33,12 @@ public class MessageService {
 
     /**
      * Cette methode permet de créer un message
-     * @param message le message à creer
+     * @param newMessageRequest le message à creer
      * @return receiveMessage le message créé
      * */
-    public Message createMessage(Message message) {
-        Message receiveMessage = this.messageRepository.createMessage(message);
-        this.messageRepository.addMessage(receiveMessage);
+    public Message createMessage(String username, NewMessageRequest newMessageRequest)
+            throws ExecutionException, InterruptedException, IOException {
+        Message receiveMessage = this.messageRepository.createMessage(username, newMessageRequest);
         this.webSocketManager.notifySessions();
         return receiveMessage;
     }
@@ -39,7 +48,9 @@ public class MessageService {
      * @param fromId, l'id du message
      * @return la liste de messages
      * */
-    public List<Message> getMessages(@RequestParam(required = false) Long fromId) {
+    public List<Message> getMessages(@RequestParam(required = false) String fromId)
+            throws ExecutionException, InterruptedException {
         return this.messageRepository.getMessages(fromId);
     }
+
  }

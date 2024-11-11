@@ -57,10 +57,14 @@ public class AuthService {
         return deleteCookie;
     }
 
+    /**
+     * Cette methode permet d'ajouter un utilisateur à la db
+     * @param name le nom de l'utilisateur
+     * @param password le mot de passe
+     * @param encodedPassword le mot de passe chiffré
+     * */
     public void addUser(String name, String password, String encodedPassword) throws ExecutionException, InterruptedException {
         FirestoreUserAccount userOnFirestore = this.userAccountRepository.getUserAccount(name);
-        //boolean samePassword = this.passwordEncoder.matches(password, encodedPassword);
-        //System.out.println("password correct : " + samePassword);
         if (userOnFirestore == null) {
             FirestoreUserAccount firestoreUserAccount = new FirestoreUserAccount(name, encodedPassword);
             this.userAccountRepository.createUserAccount(firestoreUserAccount);
