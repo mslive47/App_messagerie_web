@@ -28,8 +28,7 @@ export class AuthenticationService {
         this.httpClient.post<LoginResponse>(
           `${environment.backendUrl}/auth/login`,
           userCredentials,
-          //{ withCredentials: true }
-          { observe: 'response' } // Observe entire response to get header
+          { observe: 'response' } 
         )
       );
       //console.log(loginResponse);
@@ -40,8 +39,7 @@ export class AuthenticationService {
         this.jwtToken.set(jwtToken);
         this.username.set(loginResponse.body?.username ?? '');
       } 
-      //localStorage.setItem(AuthenticationService.KEY, loginResponse.username);
-      //this.username.set(loginResponse.username);
+
       return { success: true, username: loginResponse.body?.username };
     } catch (error) {
       console.error('Login failed', error);
@@ -53,18 +51,10 @@ export class AuthenticationService {
   async logout() {
     // À faire
     try {
-      /*const logoutResponse = await firstValueFrom(
-        this.httpClient.post<void>(
-          `${environment.backendUrl}/auth/logout`,
-          {},
-          { withCredentials: true }
-        )
-      );
-      localStorage.removeItem('username');
-      this.username.set(null);*/
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${this.jwtToken()}`);
+      const headers = new HttpHeaders().set('Authorization', `Bearer${this.jwtToken()}`);
       await firstValueFrom(
-        this.httpClient.post<void>(`${environment.backendUrl}/auth/logout`, {}, { headers })
+        this.httpClient.post<void>(`${environment.backendUrl}/auth/logout`, 
+          {}, { headers})
       );
 
       localStorage.removeItem(AuthenticationService.KEY);
@@ -86,8 +76,8 @@ export class AuthenticationService {
     return this.jwtToken();
   }
 
-  // Helper to add Authorization header with JWT token
+  
   getAuthHeaders(): HttpHeaders {
-    return new HttpHeaders().set('Authorization', `Bearer ${this.getToken()}`);
+    return new HttpHeaders().set('Authorization', `Bearer${this.getToken()}`);
   }
 }

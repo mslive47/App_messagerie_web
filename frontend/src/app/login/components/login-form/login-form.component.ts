@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserCredentials } from '../../model/user-credentials';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import { AuthenticationService } from '../../../login/services/authentication.service';
 
 @Component({
   selector: 'app-login-form',
@@ -19,19 +20,31 @@ export class LoginFormComponent {
 
   checkName: boolean = false;
   checkPassWord: boolean = false;
+  loginSuccess : boolean = false;
+  loginError: string | null = null;
 
   login = output<UserCredentials>();
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private authService: AuthenticationService) {}
 
   /** Cette méthode permet de faire la connexion au chat */
-  onLogin() {
+  async onLogin() {
     const credentials: UserCredentials = {
       username: this.loginForm.value.username!,
       password: this.loginForm.value.password!,
     };
-    this.loginForm.reset();
-    this.login.emit(credentials);
+
+    this.login.emit(credentials)
+    const response = await this.authService.login(credentials);
+
+    if (response.success) {
+      this.loginError = null;
+      this.loginForm.reset();
+      this.loginSuccess = true;
+    } else {
+      this.loginError = response.error || 'An unknown error occurred';
+    }
+
   }
 
   /** Cette méthode permet de verifier le username */
@@ -44,6 +57,7 @@ export class LoginFormComponent {
   /** Cette méthode permet de réinitialiser le champ nom d'usager */
   resetName() {
     this.checkName = false;
+    this.loginError =null;
   }
 
   /** Cette méthode de verifier le mot de passe */
@@ -56,5 +70,6 @@ export class LoginFormComponent {
   /** Cette méthode permet de réinitialier le champ mot de passe */
   resetPass() {
     this.checkPassWord = false;
+    this.loginError =null;
   }
 }

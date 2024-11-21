@@ -1,6 +1,9 @@
 package com.inf5190.chat.messages.repository;
 
 import com.google.cloud.Timestamp;
+/**
+ * Represente un message firestore
+ * */
 public class FirestoreMessage {
 
     private String username;

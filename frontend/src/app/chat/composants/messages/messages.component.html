@@ -1,6 +1,6 @@
 <div class="chat-messages">
   <div #chatContainer class="messages">
-    @for( m of messages(); track $index; let i = $index) { @if (firstUser ===
+    @for( m of messages(); track $index; let i = $index) { @if (currentUser ===
     m.username) {
     <div>
       @if(showDateHeader(messages(), i)) {
@@ -11,17 +11,21 @@
       <p>
         [{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}
       </p>
-      <!-- Affichage de l'image si elle est présente -->
-
       @if (m.imageUrl) {
-      <img [src]="m.imageUrl" alt="Message Image" class="message-image" />
+      <img [src]="m.imageUrl" alt="Image" />
       }
     </div>
-    } @else {
+    } @else { @if(showDateHeader(messages(), i)) {
+    <h3>
+      {{ m.timestamp | date }}
+    </h3>
+    }
     <p class="right">
       {{ m.text }} : {{ m.username }} [{{ m.timestamp | date : 'hh:mm' }}]
     </p>
-    } }
+    @if (m.imageUrl) {
+    <img [src]="m.imageUrl" alt="Image" class="message-image" />
+    } } }
   </div>
   <div>
     <app-new-message-form (scroll)="scrollToBottom()"></app-new-message-form>

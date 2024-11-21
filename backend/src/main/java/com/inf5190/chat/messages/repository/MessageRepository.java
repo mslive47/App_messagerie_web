@@ -1,15 +1,18 @@
 package com.inf5190.chat.messages.repository;
 
-import com.inf5190.chat.messages.model.NewMessageRequest;
-import com.inf5190.chat.messages.model.ChatImageData;
-
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-
 import com.google.cloud.firestore.*;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import com.google.firebase.cloud.StorageClient;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import com.inf5190.chat.messages.model.Message;
@@ -26,15 +29,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.concurrent.ExecutionException;
 
-import io.jsonwebtoken.io.Decoders;
-import java.io.ByteArrayInputStream;
-import com.google.cloud.storage.Storage.PredefinedAcl;
-import com.google.cloud.storage.Bucket;
-import com.google.firebase.cloud.StorageClient;
-import com.google.cloud.storage.Bucket.BlobTargetOption;
-
-
-
 
 /**
  * Classe qui gère la persistence des messages.
@@ -44,9 +38,12 @@ import com.google.cloud.storage.Bucket.BlobTargetOption;
 public class MessageRepository {
     //private final List<Message> messages = new ArrayList<Message>();
     private final AtomicLong idGenerator = new AtomicLong(0);
+
+    private static final Storage STORAGE = StorageOptions.getDefaultInstance().getService();
+    private static final String BUCKET_NAME = "inf5190-chat-faee1.firebasestorage.app"; // Remplacez par le nom de votre bucket
+
     private static final String COLLECTION_NAME = "messages";
     private final Firestore firestore = FirestoreClient.getFirestore();
-    private static final String BUCKET_NAME = "gs://inf5190-chat-d4bbd.firebasestorage.app";
 
     /**
      * Cette methode de retourner la liste de message
@@ -55,7 +52,6 @@ public class MessageRepository {
      * */
     public List<Message> getMessages(@RequestParam(required = false) String fromId)
             throws ExecutionException, InterruptedException {
-        // À faire...
 
         List<Message> messages = new ArrayList<>();
 
@@ -63,16 +59,12 @@ public class MessageRepository {
         Query query = messagesCollection.orderBy("timestamp", Query.Direction.ASCENDING).limit(20);
 
         if (fromId != null) {
-            // Récupérer le document de référence pour fromId
             DocumentSnapshot fromSnapshot = messagesCollection.document(fromId).get().get();
-
-            // Appliquer startAfter seulement si le document existe
             if (fromSnapshot.exists()) {
                 query = query.startAfter(fromSnapshot);
             }
         }
 
-        // Exécuter la requête et ajouter les messages dans la liste
         ApiFuture<QuerySnapshot> future = query.get();
         for (DocumentSnapshot document : future.get().getDocuments()) {
             FirestoreMessage firestoreMessage = document.toObject(FirestoreMessage.class);
@@ -96,44 +88,49 @@ public class MessageRepository {
      * @param message le message à creer
      * @return receiveMessage le message créé
      * */
-    public Message createMessage(String username, NewMessageRequest message) throws ExecutionException, InterruptedException {
+    public Message createMessage(String username, NewMessageRequest message) throws ExecutionException, InterruptedException, IOException {
         // À faire...
         Message userMessage = null;
-        if(message.username().equals(username)) {
-            // Créer un timestamp côté backend
+        String imageUrl = null;
+        if(message.getUsername().equals(username)) {
+
             Timestamp timestamp = Timestamp.now();
-            // Convertir le timestamp en millisecondes
             long timestampLong = timestamp.toDate().getTime();
 
-             // Créer l'objet FirestoreMessage avec les données du message
-            FirestoreMessage firestoreMessage = new FirestoreMessage(message.username(), timestamp, message.text(), null);
-
-            // Ajouter le message à Firestore, qui génère un ID unique
+            FirestoreMessage firestoreMessage = new FirestoreMessage(message.getUsername(), timestamp, message.getText(), null);
             DocumentReference documentReference = firestore.collection(COLLECTION_NAME).add(firestoreMessage).get();
 
-            // Récupérer l'ID Firestore et le timestamp pour retourner un Message au frontend
             String generatedId = documentReference.getId();
 
-            // Initialiser l'URL de l'image à null
-            String imageUrl = null;
-            if (message.chatImageData() != null) {
-                Bucket b = StorageClient.getInstance().bucket(BUCKET_NAME);
-                String path = String.format("images/%s.%s", generatedId, message.chatImageData().type());
-                b.create(path, Decoders.BASE64.decode(message.chatImageData().data()),
-                BlobTargetOption.predefinedAcl(PredefinedAcl.PUBLIC_READ));
-                imageUrl = String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME, path);
+            if(message.getImageData() != null) {
+                imageUrl = this.uploadImage(generatedId, message.getImageData().getData(), message.getImageData().getType());
+                System.out.println("image processs");
             }
-            // Mettre à jour l'URL de l'image dans firestoreMessage si l'image existe
-            firestoreMessage.setImageUrl(imageUrl);
-
-            // Enregistrez le message dans Firestore avec l'ID généré
-            documentReference.set(firestoreMessage).get();
-            
-            // Construisez l'objet Message pour le retourner au frontend
-            userMessage = new Message(generatedId, message.username(), timestampLong, message.text(), imageUrl);
+            documentReference.update("imageUrl", imageUrl);
+            userMessage = new Message(generatedId, message.getUsername(), timestampLong, message.getText(), imageUrl);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user dont have the permission");
         }
+
         return userMessage;
     }
+
+    /**
+     * Cette methode permet d'obtenir l'url de l'image
+     * @param messageId, l'id du message
+     * @param base64Image, la data de l'image
+     * @param imageType, le type de l'image
+     * @return l'url de limage
+     * */
+    public String uploadImage(String messageId, String base64Image, String imageType) throws IOException {
+        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+        String path = String.format("images/%s.%s", messageId, imageType);
+        Bucket bucket = StorageClient.getInstance().bucket();
+        bucket.create(path, imageBytes, Bucket.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PUBLIC_READ));
+        return String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME, path);
+    }
+
+
 }
+
+

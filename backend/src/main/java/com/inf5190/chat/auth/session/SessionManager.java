@@ -1,9 +1,6 @@
 package com.inf5190.chat.auth.session;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import io.jsonwebtoken.*;
@@ -25,52 +22,58 @@ public class SessionManager {
     private final SecretKey secretKey;
     private final JwtParser jwtParser;
     private final Map<String, SessionData> sessions = new HashMap<String, SessionData>();
+    private final Set<String> revokedTokens = new HashSet<>();
 
     public SessionManager() {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY_BASE64));
         this.jwtParser = Jwts.parser().verifyWith(this.secretKey).build();
     }
 
+    /**
+     * Cette methode permet d'ojouter une sessiom
+     * @param authData les donnees de la session
+     * @return le json web token
+     * */
     public String addSession(SessionData authData) {
-        //final String sessionId = this.generateSessionId();
-        //this.sessions.put(sessionId, authData);
-        //return sessionId;
 
-        // Date actuelle pour l'émission du jeton
         Date now = new Date();
-
-        // Date d'expiration fixée à 2 heures après l'émission
         Date expiration = new Date(now.getTime() + TimeUnit.HOURS.toMillis(2));
 
         // Création du JWT
         return Jwts.builder()
-                .setAudience("user") // Audience pour le jeton, ici "user" (vous pouvez adapter selon vos besoins)
-                .setIssuedAt(now) // Date de création du jeton
-                .setSubject(authData.username()) // Sujet du jeton, ici le nom d’utilisateur
-                .setExpiration(expiration) // Expiration fixée à 2 heures après l’émission
-                .signWith(this.secretKey) // Signature du jeton avec la clé secrète
-                .compact(); // Génération du jeton compacté
+                .setAudience("user")
+                .setIssuedAt(now)
+                .setSubject(authData.username())
+                .setExpiration(expiration)
+                .signWith(this.secretKey)
+                .compact();
     }
 
-    public void removeSession(String sessionId) {
-        this.sessions.remove(sessionId);
+    /**
+     * Cette methode permet de supprimer la session
+     * @param token, le json web token
+     * */
+    public void removeSession(String token) {
+        this.revokedTokens.add(token);;
     }
 
+    /**
+     * Cette methode permet d'obtenir une session
+     * @param jwtToken, le token
+     * @return la session
+     * */
     public SessionData getSession(String jwtToken) {
-        //return this.sessions.get(sessionId);
+        if (revokedTokens.contains(jwtToken)) {
+            return null;
+        }
+
         try {
-            // Parse et valide le JWT pour obtenir les claims
             Jws<Claims> claimsJws = this.jwtParser.parseSignedClaims(jwtToken);
             Claims claims = claimsJws.getPayload();
-
-            // Extraire le nom d'utilisateur (subject) du jeton
             String username = claims.getSubject();
-
-            // Créer et retourner une nouvelle instance de SessionData avec le nom d'utilisateur
             return new SessionData(username);
 
         } catch (JwtException e) {
-            // En cas d'échec de décodage ou de validation du JWT, retourner null
             return null;
         }
     }

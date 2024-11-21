@@ -32,6 +32,7 @@ public class ChatApplication {
     @Value("${cors.allowedOrigins}")
     private String allowedOriginsConfig;
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatApplication.class);
+    private static final  String BUCKET_NAME = "inf5190-chat-faee1.firebasestorage.app";
 
     public static void main(String[] args) {
         //SpringApplication.run(ChatApplication.class, args);
@@ -44,6 +45,7 @@ public class ChatApplication {
                         FileInputStream("firebase-key.json");
                 FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .setStorageBucket(BUCKET_NAME)
                         .build();
                 LOGGER.info("Initializing Firebase application.");
                 FirebaseApp.initializeApp(options);

@@ -5,10 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.inf5190.chat.auth.model.LoginRequest;
 import com.inf5190.chat.auth.model.LoginResponse;
 import com.inf5190.chat.auth.session.SessionManager;
@@ -38,19 +35,17 @@ public class AuthController {
     /**
      * Cette methode permet d'enregistrer un utilisateur
      * @param loginRequest les infos de l'utilisateur
-     * @return le cookie
+     * @return le json web token
      * */
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws ExecutionException, InterruptedException {
-        // À faire...
+
         String encodedPassword = this.passwordEncoder.encode(loginRequest.password());
         this.authService.addUser(loginRequest.username(), loginRequest.password(), encodedPassword);
         SessionData session  = new SessionData(loginRequest.username());
-        //String sessionId =  this.sessionManager.addSession(session);
-        // Créer un jeton JWT pour cette session
         String jwtToken = this.sessionManager.addSession(session);
         LoginResponse loginResponse = new LoginResponse(loginRequest.username());
-        //ResponseCookie responseCookie = this.authService.sessionCookie(sessionId);
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer" + jwtToken)
                 .body(loginResponse);
@@ -58,18 +53,15 @@ public class AuthController {
 
     /**
      * Cette methode permet de supprimer un utilisateur
-     * @param sessionCookie les infos de la session
+     * @param authHeader infos de la session
      * */
     @PostMapping(AUTH_LOGOUT_PATH)
-    public ResponseEntity<Void> logout(@CookieValue(SESSION_ID_COOKIE_NAME) Cookie sessionCookie) {
-        // À faire...
-        String sessionId = sessionCookie.getValue();
-        if (sessionId != null) {
-            this.sessionManager.removeSession(sessionId);
+    public ResponseEntity<Void> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer")) {
+            String token = authHeader.substring(6);
+            this.sessionManager.removeSession(token); // Method to invalidate token if applicable
         }
-        ResponseCookie deleteCookie = this.authService.deleteCookie();
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
-                .build();
+
+        return ResponseEntity.ok().build();
     }
 }

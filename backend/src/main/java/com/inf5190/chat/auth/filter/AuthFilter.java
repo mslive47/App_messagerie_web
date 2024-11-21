@@ -45,25 +45,6 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        // On vérifie si le session cookie est présent sinon on n'accepte pas la
-        // requête.
-      /*  final Cookie[] cookies = httpRequest.getCookies();
-
-        if (cookies == null) {
-            this.sendAuthErrorResponse(httpRequest, httpResponse);
-            return;
-        }
-
-        final Optional<Cookie> sessionCookie =
-                Arrays.stream(cookies)
-                        .filter(c -> c.getName() != null
-                                && c.getName().equals(AuthController.SESSION_ID_COOKIE_NAME))
-                        .findFirst();
-        if (sessionCookie.isEmpty()) {
-            this.sendAuthErrorResponse(httpRequest, httpResponse);
-            return;
-        } */
-
         // Récupération de l’en-tête Authorization pour lire le JWT
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
@@ -71,23 +52,13 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(6); // Enlève "Bearer"
+        String token = authHeader.substring(6);
 
-        // Utilise SessionManager pour valider le JWT
         SessionData sessionData = this.sessionManager.getSession(token);
         if (sessionData == null) {
-            sendAuthErrorResponse(request, response);  // JWT invalide
+            sendAuthErrorResponse(request, response);
             return;
         }
-
-
-        /*SessionData sessionData = this.sessionManager.getSession(sessionCookie.get().getValue());
-
-        // On vérifie si la session existe sinon on n'accepte pas la requête.
-        if (sessionData == null) {
-            this.sendAuthErrorResponse(httpRequest, httpResponse);
-            return;
-        }*/
 
         chain.doFilter(request, response);
     }
