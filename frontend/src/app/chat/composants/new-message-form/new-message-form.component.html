@@ -7,19 +7,18 @@
   </mat-form-field>
 
   <input
-#file
-name="file"
-type="file"
-style="display: none"
-accept="image/*"
-(change)="fileChanged($event)"
-/>
-<button mat-icon-button matSuffix type="button" (click)="file.click()">
-@if (hasImage) {
-<mat-icon>image</mat-icon>
-}
-@else {
-<mat-icon>add_photo_alternate</mat-icon>
-}
-</button>
-  </form>
+    #file
+    name="file"
+    type="file"
+    style="display: none"
+    accept="image/*"
+    (change)="fileChanged($event)"
+  />
+  <button mat-icon-button matSuffix type="button" (click)="file.click()">
+    @if (hasImage) {
+    <mat-icon>image</mat-icon>
+    } @else {
+    <mat-icon>add_photo_alternate</mat-icon>
+    }
+  </button>
+</form>

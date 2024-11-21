@@ -5,20 +5,19 @@ import { MessagesService } from '../../services/messages.service';
 import { FileReaderService } from '../../services/file-reader.service';
 import { ChatImageData } from '../../model/message.model';
 import { MatInputModule } from '@angular/material/input';
-import {MatIconModule} from '@angular/material/icon'
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-new-message-form',
   standalone: true,
   imports: [ReactiveFormsModule, MatInputModule, MatIconModule],
   templateUrl: './new-message-form.component.html',
-  styleUrl: './new-message-form.component.css'
+  styleUrl: './new-message-form.component.css',
 })
 export class NewMessageFormComponent {
-
   username = this.authenticationService.getUsername();
   scroll = output();
-  messageId : number = 0;
+  messageId: number = 0;
 
   file: File | null = null;
   imageData: ChatImageData | null = null;
@@ -30,36 +29,40 @@ export class NewMessageFormComponent {
   constructor(
     private fb: FormBuilder,
     private messagesService: MessagesService,
-    private fileReaderService : FileReaderService,
-    private authenticationService: AuthenticationService,
+    private fileReaderService: FileReaderService,
+    private authenticationService: AuthenticationService
   ) {}
 
   /** cette methode permet d'afficher les messages envoyés */
   async onPublishMessage() {
+    const usernameValue = this.username() ?? ''; // Utilise une chaîne vide si username est null
+
     if (
       this.username() &&
       this.messageForm.valid &&
-      this.messageForm.value.msg
+      (this.messageForm.value.msg || this.file)
     ) {
-      const text = this.messageForm.value.msg;
-      await this.processFile();// si y a un pb ajouter await ici et ajouter async onpublish
-      if (text || this.imageData) {
+      // const text = this.messageForm.value.msg;
+      const text = this.messageForm.value.msg ?? '';
+      await this.processFile(); // si y a un pb ajouter await ici et ajouter async onpublish
+
+      const newMessage = {
+        text,
+        username: usernameValue,
+        imageData: this.imageData,
+      };
+      this.messagesService.postMessage(newMessage);
+
+      /* if (text || this.imageData) {
         this.messagesService.postMessage({
           //id : this.messageId.toString(),
           text: this.messageForm.value.msg ?? '',
           username: this.username()!,
           imageData: this.imageData,
           //timestamp: Date.now(),
-        });
-      }
-      /*this.messagesService.postMessage({
-        //id : this.messageId.toString(),
-        text: this.messageForm.value.msg,
-        username: this.username()!,
-        imageData: null,
-        //timestamp: Date.now(),
-      });*/
+        });*/
     }
+
     this.messageForm.reset();
     this.scroll.emit;
     this.messageId++;
@@ -75,13 +78,11 @@ export class NewMessageFormComponent {
   fileChanged(event: Event) {
     const input = event.target as HTMLInputElement;
     this.file = input.files ? input.files[0] : null;
-  }  
-  
-   async processFile() {
+  }
+
+  async processFile() {
     if (this.file) {
       this.imageData = await this.fileReaderService.readFile(this.file);
     }
   }
-  
-      
 }

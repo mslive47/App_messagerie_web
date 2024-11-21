@@ -1,23 +1,27 @@
 <div class="chat-messages">
   <div #chatContainer class="messages">
-    @for( m of messages(); track $index; let i = $index) {
-      @if (firstUser === m.username) {
-        <div>
-          @if(showDateHeader(messages(), i)) {
-          <h3>
-            {{ m.timestamp | date }}
-          </h3>
-          }
-          <p>
-            [{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}
-          </p>
-        </div>
-      } @else {
-        <p class="right">
-          {{ m.text }} : {{ m.username }} [{{ m.timestamp | date : 'hh:mm' }}] 
-        </p>
+    @for( m of messages(); track $index; let i = $index) { @if (firstUser ===
+    m.username) {
+    <div>
+      @if(showDateHeader(messages(), i)) {
+      <h3>
+        {{ m.timestamp | date }}
+      </h3>
       }
-    }
+      <p>
+        [{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}
+      </p>
+      <!-- Affichage de l'image si elle est présente -->
+
+      @if (m.imageUrl) {
+      <img [src]="m.imageUrl" alt="Message Image" class="message-image" />
+      }
+    </div>
+    } @else {
+    <p class="right">
+      {{ m.text }} : {{ m.username }} [{{ m.timestamp | date : 'hh:mm' }}]
+    </p>
+    } }
   </div>
   <div>
     <app-new-message-form (scroll)="scrollToBottom()"></app-new-message-form>

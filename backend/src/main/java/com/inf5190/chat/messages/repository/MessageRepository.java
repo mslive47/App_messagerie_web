@@ -1,12 +1,15 @@
 package com.inf5190.chat.messages.repository;
 
+import com.inf5190.chat.messages.model.NewMessageRequest;
+import com.inf5190.chat.messages.model.ChatImageData;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+
 import com.google.cloud.firestore.*;
-import com.inf5190.chat.messages.model.NewMessageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import com.inf5190.chat.messages.model.Message;
@@ -23,6 +26,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.concurrent.ExecutionException;
 
+import io.jsonwebtoken.io.Decoders;
+import java.io.ByteArrayInputStream;
+import com.google.cloud.storage.Storage.PredefinedAcl;
+import com.google.cloud.storage.Bucket;
+import com.google.firebase.cloud.StorageClient;
+import com.google.cloud.storage.Bucket.BlobTargetOption;
+
+
+
 
 /**
  * Classe qui gère la persistence des messages.
@@ -34,6 +46,7 @@ public class MessageRepository {
     private final AtomicLong idGenerator = new AtomicLong(0);
     private static final String COLLECTION_NAME = "messages";
     private final Firestore firestore = FirestoreClient.getFirestore();
+    private static final String BUCKET_NAME = "gs://inf5190-chat-d4bbd.firebasestorage.app";
 
     /**
      * Cette methode de retourner la liste de message
@@ -43,11 +56,6 @@ public class MessageRepository {
     public List<Message> getMessages(@RequestParam(required = false) String fromId)
             throws ExecutionException, InterruptedException {
         // À faire...
-       /* if (fromId != null) {
-            return this.messages.stream().filter(message -> Long.parseLong(message.id()) >= fromId).collect(Collectors.toList());
-        } else  {
-            return this.messages;
-        }*/
 
         List<Message> messages = new ArrayList<>();
 
@@ -94,11 +102,10 @@ public class MessageRepository {
         if(message.username().equals(username)) {
             // Créer un timestamp côté backend
             Timestamp timestamp = Timestamp.now();
-
             // Convertir le timestamp en millisecondes
             long timestampLong = timestamp.toDate().getTime();
 
-            // Préparer le message pour Firestore, en ignorant l'ID et le timestamp reçus du frontend
+             // Créer l'objet FirestoreMessage avec les données du message
             FirestoreMessage firestoreMessage = new FirestoreMessage(message.username(), timestamp, message.text(), null);
 
             // Ajouter le message à Firestore, qui génère un ID unique
@@ -106,20 +113,27 @@ public class MessageRepository {
 
             // Récupérer l'ID Firestore et le timestamp pour retourner un Message au frontend
             String generatedId = documentReference.getId();
-            String imageUrl = documentReference.getPath(); //pour url image à effacer si ca marche pas
+
+            // Initialiser l'URL de l'image à null
+            String imageUrl = null;
+            if (message.chatImageData() != null) {
+                Bucket b = StorageClient.getInstance().bucket(BUCKET_NAME);
+                String path = String.format("images/%s.%s", generatedId, message.chatImageData().type());
+                b.create(path, Decoders.BASE64.decode(message.chatImageData().data()),
+                BlobTargetOption.predefinedAcl(PredefinedAcl.PUBLIC_READ));
+                imageUrl = String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME, path);
+            }
+            // Mettre à jour l'URL de l'image dans firestoreMessage si l'image existe
+            firestoreMessage.setImageUrl(imageUrl);
+
+            // Enregistrez le message dans Firestore avec l'ID généré
+            documentReference.set(firestoreMessage).get();
+            
+            // Construisez l'objet Message pour le retourner au frontend
             userMessage = new Message(generatedId, message.username(), timestampLong, message.text(), imageUrl);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "user dont have the permission");
         }
-
         return userMessage;
     }
-
-    /**
-     * Cette methode permet d'ajouter un message dans la liste des messages
-     * */
-   // public void addMessage(Message message) {
-       // this.messages.add(message);
-    //}
-
 }

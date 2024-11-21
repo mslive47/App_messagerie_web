@@ -7,6 +7,8 @@ public class FirestoreMessage {
     private Timestamp timestamp;
     private String text;
     private String imageUrl;
+   
+    
     public FirestoreMessage() {
     }
 
@@ -40,6 +42,7 @@ public class FirestoreMessage {
     public String getImageUrl() {
         return imageUrl;
     }
+
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
