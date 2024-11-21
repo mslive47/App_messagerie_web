@@ -130,7 +130,6 @@ public class MessageRepository {
         return String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME, path);
     }
 
-
 }
 
 

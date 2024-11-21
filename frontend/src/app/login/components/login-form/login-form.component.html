@@ -15,7 +15,7 @@
           />
         </mat-form-field>
         @if (checkName) {
-        <mat-error>nom requis</mat-error>
+        <mat-error>Entrer un nom</mat-error>
         }
       </div>
       <div>
@@ -32,7 +32,7 @@
           />
         </mat-form-field>
         @if(checkPassWord) {
-        <mat-error>mot de passe requis</mat-error>
+        <mat-error>Entrer un mot de passe</mat-error>
         }
       </div>
     </div>
@@ -43,12 +43,10 @@
     </div>
   </form>
   @if(loginSuccess) {
-    <div class="success-message">
-      Connexion réussie!
-    </div>
+  <div class="success-message">Connexion réussie!</div>
   }@else if (loginError) {
-    <div class="error-message">
-      {{ loginError }}
-    </div>
+  <div class="error-message">
+    {{ loginError }}
+  </div>
   }
 </div>
