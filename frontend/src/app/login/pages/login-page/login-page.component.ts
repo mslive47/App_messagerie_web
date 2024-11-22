@@ -13,6 +13,9 @@ import { LoginResponse } from '../../model/login-response';
   imports: [LoginFormComponent],
 })
 export class LoginPageComponent {
+  loginError: string | null = null; // Déclaration de loginError dans le parent
+  loginSuccess: boolean = false;
+
   constructor(
     private authService: AuthenticationService,
     private router: Router
@@ -20,16 +23,13 @@ export class LoginPageComponent {
 
   /** Cette méthode permet de faire la connexion à la page chat */
   async onLogin(userCredentials: UserCredentials) {
-    try {
-      const response = await this.authService.login(userCredentials);
-      if (response.success) {
-        console.log('Login successful, redirecting to chat page...');
-        this.router.navigate(['/chat']);
-      } else {
-        console.error('Login failed:', response.error);
-      }
-    } catch (error) {
-      console.error('An error occurred during login:', error);
+    const response = await this.authService.login(userCredentials);
+    if (response.success) {
+      console.log('Login successful, redirecting to chat page...');
+      this.loginError = null;
+      this.router.navigate(['/chat']);
+    } else {
+      this.loginError = response.error || 'Problème de connexion';
     }
   }
 }
