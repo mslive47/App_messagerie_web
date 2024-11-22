@@ -98,4 +98,10 @@ export class AuthenticationService {
   getAuthHeaders(): HttpHeaders {
     return new HttpHeaders().set('Authorization', `Bearer${this.getToken()}`);
   }
+
+  // Vérifie si l'utilisateur est connecté en se basant sur le localStorage
+  isConnected(): boolean {
+    const username = localStorage.getItem('username');
+    return username !== null && username.trim() !== '';
+  }
 }
