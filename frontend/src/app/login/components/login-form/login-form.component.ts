@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserCredentials } from '../../model/user-credentials';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,9 +21,9 @@ export class LoginFormComponent {
   checkName: boolean = false;
   checkPassWord: boolean = false;
   loginSuccess: boolean = false;
-  loginError: string | null = null;
 
   login = output<UserCredentials>();
+  @Input() loginError: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -42,15 +42,6 @@ export class LoginFormComponent {
     };
 
     this.login.emit(credentials);
-    const response = await this.authService.login(credentials);
-
-    if (response.success) {
-      this.loginError = null;
-      this.loginForm.reset();
-      this.loginSuccess = true;
-    } else {
-      this.loginError = response.error || 'An unknown error occurred';
-    }
   }
 
   /** Cette méthode permet de verifier le username */
@@ -60,18 +51,17 @@ export class LoginFormComponent {
       (usernameControl?.touched || usernameControl?.dirty) &&
       usernameControl?.invalid
     ) {
-      this.checkName = true; // Afficher l'erreur si le champ est touché et invalide
-      usernameControl.markAsTouched(); // Marque le champ comme touché
+      this.checkName = true;
+      usernameControl.markAsTouched();
     } else {
-      this.checkName = false; // Masquer l'erreur si le champ est valide
+      this.checkName = false;
     }
   }
 
   /** Cette méthode permet de réinitialiser le champ nom d'usager */
   resetName() {
     this.checkName = false;
-    this.loginForm.get('username')?.markAsUntouched(); // Réinitialise l'état du champ
-    this.loginError = null;
+    this.loginForm.get('username')?.markAsUntouched();
   }
 
   /** Cette méthode de verifier le mot de passe */
@@ -82,16 +72,15 @@ export class LoginFormComponent {
       passwordControl?.invalid
     ) {
       this.checkPassWord = true; // Afficher l'erreur si le champ est touché et invalide
-      passwordControl.markAsTouched(); // Marque le champ comme touché
+      passwordControl.markAsTouched();
     } else {
-      this.checkPassWord = false; // Masquer l'erreur si le champ est valide
+      this.checkPassWord = false;
     }
   }
 
   /** Cette méthode permet de réinitialier le champ mot de passe */
   resetPass() {
     this.checkPassWord = false;
-    this.loginForm.get('password')?.markAsUntouched(); // Réinitialise l'état du champ
-    this.loginError = null;
+    this.loginForm.get('password')?.markAsUntouched();
   }
 }
