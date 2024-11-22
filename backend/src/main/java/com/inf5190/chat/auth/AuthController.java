@@ -11,6 +11,8 @@ import com.inf5190.chat.auth.model.LoginResponse;
 import com.inf5190.chat.auth.session.SessionManager;
 import jakarta.servlet.http.Cookie;
 
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -39,7 +41,10 @@ public class AuthController {
      * */
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws ExecutionException, InterruptedException {
+      
+      try {
 
+      
         String encodedPassword = this.passwordEncoder.encode(loginRequest.password());
         this.authService.addUser(loginRequest.username(), loginRequest.password(), encodedPassword);
         SessionData session  = new SessionData(loginRequest.username());
@@ -49,6 +54,11 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer" + jwtToken)
                 .body(loginResponse);
+
+      } catch (ResponseStatusException e) {
+        // Si une exception est levée, retournez un statut 403 ou un autre code d'erreur
+        return ResponseEntity.status(e.getStatusCode()).body(null);
+      }
     }
 
     /**
