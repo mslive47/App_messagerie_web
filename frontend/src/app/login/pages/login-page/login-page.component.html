@@ -1,3 +1,6 @@
 <div>
-  <app-login-form (login)="onLogin($event)"></app-login-form>
+  <app-login-form
+    [loginError]="loginError"
+    (login)="onLogin($event)"
+  ></app-login-form>
 </div>
