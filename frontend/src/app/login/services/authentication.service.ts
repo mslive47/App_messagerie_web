@@ -1,7 +1,11 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { UserCredentials } from '../model/user-credentials';
 import { firstValueFrom, Observable, of } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LoginResponse } from '../model/login-response';
 
@@ -28,22 +32,31 @@ export class AuthenticationService {
         this.httpClient.post<LoginResponse>(
           `${environment.backendUrl}/auth/login`,
           userCredentials,
-          { observe: 'response' } 
+          { observe: 'response' }
         )
       );
       //console.log(loginResponse);
-      const jwtToken = loginResponse.headers.get('Authorization')?.replace('Bearer ', '');
+      const jwtToken = loginResponse.headers
+        .get('Authorization')
+        ?.replace('Bearer ', '');
       if (jwtToken) {
         localStorage.setItem(AuthenticationService.TOKEN_KEY, jwtToken);
-        localStorage.setItem(AuthenticationService.KEY, loginResponse.body?.username ?? '');
+        localStorage.setItem(
+          AuthenticationService.KEY,
+          loginResponse.body?.username ?? ''
+        );
         this.jwtToken.set(jwtToken);
         this.username.set(loginResponse.body?.username ?? '');
-      } 
-
+      }
       return { success: true, username: loginResponse.body?.username };
     } catch (error) {
-      console.error('Login failed', error);
-      return { success: false, error: 'Login failed' };
+      console.error('Login error:', error);
+
+      // Vérifiez le type d'erreur et renvoyez un message clair
+      if (error instanceof HttpErrorResponse && error.status === 403) {
+        return { success: false, error: 'Mot de passe incorrect' };
+      }
+      return { success: false, error: 'Erreur de connexion au serveur' };
     }
   }
 
@@ -51,10 +64,16 @@ export class AuthenticationService {
   async logout() {
     // À faire
     try {
-      const headers = new HttpHeaders().set('Authorization', `Bearer${this.jwtToken()}`);
+      const headers = new HttpHeaders().set(
+        'Authorization',
+        `Bearer${this.jwtToken()}`
+      );
       await firstValueFrom(
-        this.httpClient.post<void>(`${environment.backendUrl}/auth/logout`, 
-          {}, { headers})
+        this.httpClient.post<void>(
+          `${environment.backendUrl}/auth/logout`,
+          {},
+          { headers }
+        )
       );
 
       localStorage.removeItem(AuthenticationService.KEY);
@@ -76,7 +95,6 @@ export class AuthenticationService {
     return this.jwtToken();
   }
 
-  
   getAuthHeaders(): HttpHeaders {
     return new HttpHeaders().set('Authorization', `Bearer${this.getToken()}`);
   }
