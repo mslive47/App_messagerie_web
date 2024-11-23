@@ -92,11 +92,13 @@ export class AuthenticationService {
   }
 
   getToken(): string | null {
+    this.jwtToken.set(localStorage.getItem(AuthenticationService.TOKEN_KEY));
+
     return this.jwtToken();
   }
 
   getAuthHeaders(): HttpHeaders {
-    return new HttpHeaders().set('Authorization', `Bearer${this.getToken()}`);
+    return new HttpHeaders().set('Authorization', `${this.getToken()}`);
   }
 
   // Vérifie si l'utilisateur est connecté en se basant sur le localStorage
