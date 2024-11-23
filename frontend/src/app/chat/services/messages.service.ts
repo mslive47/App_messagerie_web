@@ -1,4 +1,4 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { EventEmitter, Injectable, Signal, signal } from '@angular/core';
 import { Message, NewMessageRequest } from '../model/message.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -11,12 +11,14 @@ import { AuthenticationService } from 'src/app/login/services/authentication.ser
 })
 export class MessagesService {
   messages = signal<Message[]>([]);
-  lastMessageId: string = "";
+  lastMessageId: string = '';
+  // Déclare un EventEmitter pour émettre un événement de déconnexion
+  logoutEvent = new EventEmitter<void>();
 
   constructor(
     private httpClient: HttpClient,
     private webSocketService: WebSocketService,
-    private authService: AuthenticationService //a enlever maybe
+    private authService: AuthenticationService
   ) {
     // Connexion au WebSocket et abonnement aux notifications
     this.webSocketService.connect().subscribe({
@@ -36,12 +38,22 @@ export class MessagesService {
     message: NewMessageRequest
   ): Promise<{ success: boolean; error?: string }> {
     // À faire
+    const token = this.authService.getToken();
+    console.log('Vérification du token :', token);
+
+    // Vérifier si le token existe avant de faire la requête
+    if (!token) {
+      console.warn('Token manquant, session expirée.');
+      this.handleSessionExpired();
+      return { success: false, error: 'Session expirée' };
+    }
+
     try {
-      const messageResponse  = await firstValueFrom(
+      const messageResponse = await firstValueFrom(
         this.httpClient.post<Message>(
           `${environment.backendUrl}/auth/chat`,
           message,
-          { headers: this.getAuthHeaders() } 
+          { headers: this.getAuthHeaders() }
         )
       );
       this.lastMessageId = messageResponse.id;
@@ -49,6 +61,10 @@ export class MessagesService {
       console.log('message id envoye : ' + this.lastMessageId);
       return { success: true };
     } catch (error: any) {
+      if (error?.status === 403) {
+        this.handleSessionExpired();
+      }
+
       console.error('post message failed', error);
       return { success: false, error: 'post message failed' };
     }
@@ -56,8 +72,13 @@ export class MessagesService {
 
   async fetchMessages(
     id: string
-
   ): Promise<{ success: boolean; error?: string }> {
+    // Vérifier si le token existe avant de faire la requête
+    if (!this.authService.getToken()) {
+      this.handleSessionExpired();
+      return { success: false, error: 'Session expirée' };
+    }
+
     try {
       const url = id
         ? `${environment.backendUrl}/auth/chat?fromId=${id}`
@@ -69,7 +90,8 @@ export class MessagesService {
       if (currentMessages.length > 0) {
         const lastMessage = currentMessages[currentMessages.length - 1];
         const newMessages = messageResponse.filter(
-          (msg) => !currentMessages.some(existingMsg => existingMsg.id === msg.id)
+          (msg) =>
+            !currentMessages.some((existingMsg) => existingMsg.id === msg.id)
         );
         this.messages.set([...currentMessages, ...newMessages]);
       } else {
@@ -77,6 +99,10 @@ export class MessagesService {
       }
       return { success: true };
     } catch (error: any) {
+      if (error?.status === 403) {
+        this.handleSessionExpired();
+      }
+
       console.error('fetch message failed', error);
       return { success: false, error: 'fetch message failed' };
     }
@@ -93,10 +119,11 @@ export class MessagesService {
 
   getLastMessage(): Message | undefined {
     const currentMessages = this.messages();
-    return currentMessages.length > 0 ? currentMessages[currentMessages.length - 1] : undefined;
+    return currentMessages.length > 0
+      ? currentMessages[currentMessages.length - 1]
+      : undefined;
   }
 
-  
   private getAuthHeaders(): HttpHeaders {
     const jwtToken = this.authService.getToken();
     if (!jwtToken) {
@@ -104,5 +131,11 @@ export class MessagesService {
     }
     const header = new HttpHeaders().set('Authorization', `${jwtToken}`);
     return header;
+  }
+
+  private handleSessionExpired() {
+    console.warn('Session expirée. Redirection vers la page de connexion.');
+    // Émettre l'événement de déconnexion
+    this.logoutEvent.emit();
   }
 }
