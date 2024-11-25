@@ -4,6 +4,7 @@ import { firstValueFrom, Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LoginResponse } from '../model/login-response';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class AuthenticationService {
   static TOKEN_KEY = 'jwtToken';
   private username = signal<string | null>(null);
   private jwtToken = signal<string | null>(null);
+  logoutState : boolean = false;
 
   constructor(private httpClient: HttpClient) {
     this.username.set(localStorage.getItem(AuthenticationService.KEY));
@@ -38,10 +40,14 @@ export class AuthenticationService {
         localStorage.setItem(AuthenticationService.KEY, loginResponse.body?.username ?? '');
         this.jwtToken.set(jwtToken);
         this.username.set(loginResponse.body?.username ?? '');
+        this.logoutState = false;
       } 
 
       return { success: true, username: loginResponse.body?.username };
     } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        throw error;
+      }
       console.error('Login failed', error);
       return { success: false, error: 'Login failed' };
     }
@@ -61,11 +67,18 @@ export class AuthenticationService {
       localStorage.removeItem(AuthenticationService.TOKEN_KEY);
       this.username.set(null);
       this.jwtToken.set(null);
+      this.logoutState = true; //a enlever peut etre
       return { success: true };
     } catch (error) {
       console.error('Logout failed', error);
       return { success: false, error: 'Logout failed' };
     }
+  }
+
+  isconnected () {
+    const user = localStorage.getItem('username');
+    const connect : boolean = user != null;
+    return connect;
   }
 
   getUsername(): Signal<string | null> {
@@ -79,5 +92,9 @@ export class AuthenticationService {
   
   getAuthHeaders(): HttpHeaders {
     return new HttpHeaders().set('Authorization', `Bearer${this.getToken()}`);
+  }
+
+  resetLogoutState() {
+    this.logoutState = false; // Réinitialise l'état de déconnexion.
   }
 }
