@@ -12,8 +12,12 @@ import com.inf5190.chat.auth.session.SessionManager;
 import jakarta.servlet.http.Cookie;
 
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.concurrent.ExecutionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Contrôleur qui gère l'API de login et logout.
@@ -23,6 +27,8 @@ public class AuthController {
     public static final String AUTH_LOGIN_PATH = "/auth/login";
     public static final String AUTH_LOGOUT_PATH = "/auth/logout";
     public static final String SESSION_ID_COOKIE_NAME = "sid";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
 
     private final SessionManager sessionManager;
     private AuthService authService;
@@ -56,8 +62,13 @@ public class AuthController {
                 .body(loginResponse);
 
       } catch (ResponseStatusException e) {
+         throw e; // Laisser passer les exceptions ResponseStatusException
         // Si une exception est levée, retournez un statut 403 ou un autre code d'erreur
-        return ResponseEntity.status(e.getStatusCode()).body(null);
+       // return ResponseEntity.status(e.getStatusCode()).body(null);
+      } catch (Exception e) {
+            LOGGER.warn("Erreur inattendue lors de la connexion.", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                                              "Unexpected error during login.");
       }
     }
 
@@ -67,11 +78,20 @@ public class AuthController {
      * */
     @PostMapping(AUTH_LOGOUT_PATH)
     public ResponseEntity<Void> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+      try {
         if (authHeader != null && authHeader.startsWith("Bearer")) {
             String token = authHeader.substring(6);
             this.sessionManager.removeSession(token); // Method to invalidate token if applicable
         }
 
         return ResponseEntity.ok().build();
+      } catch (ResponseStatusException e) {
+            throw e;
+      } catch (Exception e) {
+            LOGGER.warn("Erreur inattendue lors de la déconnexion.", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                                              "Unexpected error during logout.");
+     
+      }
     }
 }
