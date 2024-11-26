@@ -66,6 +66,9 @@ export class MessagesService {
       }
 
       console.error('post message failed', error);
+
+      // Ajouter le message dans la file d’attente WebSocket
+      this.webSocketService.queueMessage(message);
       return { success: false, error: 'post message failed' };
     }
   }
