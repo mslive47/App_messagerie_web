@@ -13,7 +13,12 @@ import com.google.firebase.cloud.FirestoreClient;
 @Repository
 public class UserAccountRepository {
     private static final String COLLECTION_NAME = "userAccounts";
-    private final Firestore firestore = FirestoreClient.getFirestore();
+   // private final Firestore firestore = FirestoreClient.getFirestore();
+   private final Firestore firestore;
+
+   public UserAccountRepository(Firestore firestore) {
+       this.firestore = firestore;
+   }
 
     /**
      * Cette methode permet d'obtenir un utilisateur de la db
