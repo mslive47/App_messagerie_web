@@ -66,9 +66,13 @@ public class AuthService {
     public void addUser(String name, String password, String encodedPassword) throws ExecutionException, InterruptedException {
         FirestoreUserAccount userOnFirestore = this.userAccountRepository.getUserAccount(name);
         if (userOnFirestore == null) {
+
+             System.out.println("User not found, creating new user.");
             FirestoreUserAccount firestoreUserAccount = new FirestoreUserAccount(name, encodedPassword);
             this.userAccountRepository.createUserAccount(firestoreUserAccount);
         } else {
+
+             System.out.println("User found, checking password.");
             boolean samePassword = this.passwordEncoder.matches(password, userOnFirestore.getEncodedPassword());
             if(!samePassword) {
                 System.out.println("Passwords do not match");
