@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { NewMessageFormComponent } from './new-message-form.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('NewMessageFormComponent', () => {
   let component: NewMessageFormComponent;
@@ -8,7 +10,8 @@ describe('NewMessageFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NewMessageFormComponent]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+      imports: [NewMessageFormComponent, NoopAnimationsModule]
     })
     .compileComponents();
 

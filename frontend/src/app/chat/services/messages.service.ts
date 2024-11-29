@@ -1,8 +1,8 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { Message, NewMessageRequest } from '../model/message.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { WebSocketService } from './web-socket.service';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 
@@ -12,6 +12,11 @@ import { AuthenticationService } from 'src/app/login/services/authentication.ser
 export class MessagesService {
   messages = signal<Message[]>([]);
   lastMessageId: string = "";
+  private unauthorizedEvent = new Subject<void>();
+
+  // Observable accessible pour les composants
+  unauthorized = this.unauthorizedEvent.asObservable();
+
 
   constructor(
     private httpClient: HttpClient,
@@ -49,6 +54,10 @@ export class MessagesService {
       console.log('message id envoye : ' + this.lastMessageId);
       return { success: true };
     } catch (error: any) {
+      if (error instanceof HttpErrorResponse && error.status === 403) {
+        console.error('HTTP 403 detected during postMessage');
+        this.emitUnauthorizedEvent();
+      }
       console.error('post message failed', error);
       return { success: false, error: 'post message failed' };
     }
@@ -77,6 +86,10 @@ export class MessagesService {
       }
       return { success: true };
     } catch (error: any) {
+      if (error instanceof HttpErrorResponse && error.status === 403) {
+        console.error('HTTP 403 detected during postMessage');
+        this.emitUnauthorizedEvent();
+      }
       console.error('fetch message failed', error);
       return { success: false, error: 'fetch message failed' };
     }
@@ -98,11 +111,18 @@ export class MessagesService {
 
   
   private getAuthHeaders(): HttpHeaders {
-    const jwtToken = this.authService.getToken();
+    const jwtToken = localStorage.getItem('jwtToken');
     if (!jwtToken) {
       console.error('JWT token is missing');
     }
     const header = new HttpHeaders().set('Authorization', `${jwtToken}`);
     return header;
   }
+
+  // Émettre l'événement en cas d'erreur 403
+  private emitUnauthorizedEvent() {
+    this.unauthorizedEvent.next();
+  }
+
+  
 }

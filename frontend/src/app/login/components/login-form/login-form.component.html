@@ -9,13 +9,14 @@
             [class.green-border]="loginSuccess"
             (blur)="verifyName()"
             (focus)="resetName()"
+            data-testid="username-input"
             name="username"
             type="text"
             formControlName="username"
           />
         </mat-form-field>
         @if (checkName) {
-        <mat-error>nom requis</mat-error>
+        <mat-error data-testid="username-error">nom requis</mat-error>
         }
       </div>
       <div>
@@ -26,18 +27,19 @@
             [class.green-border]="loginSuccess"
             (blur)="verifyPassWord()"
             (focus)="resetPass()"
+            data-testid="password-input"
             name="password"
             type="password"
             formControlName="password"
           />
         </mat-form-field>
         @if(checkPassWord) {
-        <mat-error>mot de passe requis</mat-error>
+        <mat-error data-testid="password-error">mot de passe requis</mat-error>
         }
       </div>
     </div>
     <div>
-      <button mat-flat-button type="submit" [disabled]="loginForm.invalid">
+      <button mat-flat-button type="submit" data-testid="submit-button" [disabled]="loginForm.invalid">
         Connexion
       </button>
     </div>

@@ -4,6 +4,7 @@ import { UserCredentials } from '../../model/user-credentials';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { AuthenticationService } from '../../../login/services/authentication.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login-form',
@@ -35,14 +36,27 @@ export class LoginFormComponent {
     };
 
     this.login.emit(credentials)
-    const response = await this.authService.login(credentials);
+    try {
+      const response = await this.authService.login(credentials);
 
-    if (response.success) {
-      this.loginError = null;
-      this.loginForm.reset();
-      this.loginSuccess = true;
-    } else {
-      this.loginError = response.error || 'An unknown error occurred';
+      if (response.success) {
+        this.loginError = null;
+        this.loginForm.reset();
+        this.loginSuccess = true;
+      } //else {
+        //this.loginError = response.error || 'An unknown error occurred';
+     // }
+    } catch (error) {
+      //console.log('MEssage: ${error.status === 403}');
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 403) {
+          this.loginError = 'Mot de passe invalide';
+        } else {
+          this.loginError = 'Problème de connexion';
+        }
+      } else {
+        this.loginError = 'Une erreur inattendue est survenue';
+      }
     }
 
   }

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MessagesComponent } from './messages.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('MessagesComponent', () => {
   let component: MessagesComponent;
@@ -8,7 +10,8 @@ describe('MessagesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MessagesComponent]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+      imports: [MessagesComponent, NoopAnimationsModule]
     })
     .compileComponents();
 

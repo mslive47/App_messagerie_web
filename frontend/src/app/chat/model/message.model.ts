@@ -1,6 +1,6 @@
 export interface Message {
   id : string;
-  text: string;
+  text: string | null;
   username: string;
   timestamp: number;
   imageUrl: string | null;

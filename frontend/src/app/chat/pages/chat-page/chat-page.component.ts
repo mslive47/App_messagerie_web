@@ -5,6 +5,8 @@ import { AuthenticationService } from 'src/app/login/services/authentication.ser
 import { Router } from '@angular/router';
 import { MessagesComponent } from '../../composants/messages/messages.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MessagesService } from '../../services/messages.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat-page',
@@ -14,10 +16,17 @@ import { MatButtonModule } from '@angular/material/button';
   imports: [ReactiveFormsModule, MessagesComponent, MatButtonModule],
 })
 export class ChatPageComponent {
+  private unauthorizedSubscription: Subscription;
+  
   constructor(
+    private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
     private router: Router
-  ) {}
+  ) {
+    this.unauthorizedSubscription = this.messagesService.unauthorized.subscribe(() => {
+      this.handleLogout();
+    });
+  }
 
   /** Cette méthode permet de faire la deconnexion du chat */
   async onLogout() {
@@ -32,4 +41,10 @@ export class ChatPageComponent {
       console.error('An error occurred during login:', error);
     }
   }
+
+  async handleLogout() {
+    await this.onLogout();
+    //this.router.navigate(['/login']);
+  }
+
 }

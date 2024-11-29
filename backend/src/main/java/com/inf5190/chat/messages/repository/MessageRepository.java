@@ -43,7 +43,14 @@ public class MessageRepository {
     private static final String BUCKET_NAME = "inf5190-chat-faee1.firebasestorage.app"; // Remplacez par le nom de votre bucket
 
     private static final String COLLECTION_NAME = "messages";
-    private final Firestore firestore = FirestoreClient.getFirestore();
+
+    private final Firestore firestore;
+    private final StorageClient storageClient;
+
+    public MessageRepository(Firestore firestore, StorageClient storageClient) {
+        this.firestore = firestore;
+        this.storageClient = storageClient;
+    }
 
     /**
      * Cette methode de retourner la liste de message
