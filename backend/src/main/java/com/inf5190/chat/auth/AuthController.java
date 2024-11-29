@@ -81,6 +81,7 @@ public class AuthController {
 
             return ResponseEntity.ok().build();
         } catch (ResponseStatusException e) {
+            LOGGER.warn("erreur forbiden", e);
             throw e;
         } catch (Exception e) {
             LOGGER.warn("Erreur inattendue lors de la déconnexion.",  e);

@@ -30,6 +30,10 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 }
 
+
 tasks.withType<Test> {
 	useJUnitPlatform()
+	testLogging {
+		events("PASSED", "FAILED", "SKIPPED")
+	}
 }
