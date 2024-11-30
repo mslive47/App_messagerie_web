@@ -27,7 +27,7 @@ public class MessageController {
     private SessionManager sessionManager;
 
     public MessageController(WebSocketManager webSocketManager,
-                             MessageService messageService, SessionManager sessionManager) {
+            MessageService messageService, SessionManager sessionManager) {
         this.webSocketManager = webSocketManager;
         this.messageService = messageService;
         this.sessionManager = sessionManager;
@@ -36,12 +36,14 @@ public class MessageController {
     // À faire...
     /**
      * Cette methode permet de créer un message
+     * 
      * @param newMessageRequest le message à creer
      * @return receiveMessage le message créé
-     * */
+     */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(MESSAGES_PATH)
-    public Message createMessage(@RequestHeader("Authorization") String authHeader, @RequestBody NewMessageRequest newMessageRequest)
+    public Message createMessage(@RequestHeader("Authorization") String authHeader,
+            @RequestBody NewMessageRequest newMessageRequest)
             throws ExecutionException, InterruptedException, IOException {
 
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
@@ -55,9 +57,10 @@ public class MessageController {
 
     /**
      * Cette methode permet d'obtenir la liste des messages
+     * 
      * @param fromId l'id du message
      * @return la liste des messages
-     * */
+     */
     @GetMapping(MESSAGES_PATH)
     public @ResponseBody List<Message> getMessages(@RequestParam(required = false) String fromId)
             throws ExecutionException, InterruptedException {
@@ -66,9 +69,10 @@ public class MessageController {
 
     /**
      * Cette methode permet d'obtenir un message de la liste des messages
+     * 
      * @param id l'id du message
      * @return le message
-     * */
+     */
     @GetMapping(MESSAGE_PATH_WITH_ID)
     public @ResponseBody List<Message> getMessagesById(@PathVariable String id)
             throws ExecutionException, InterruptedException {

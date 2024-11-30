@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NewMessageFormComponent } from './new-message-form.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('NewMessageFormComponent', () => {
   let component: NewMessageFormComponent;
@@ -8,9 +10,12 @@ describe('NewMessageFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NewMessageFormComponent]
-    })
-    .compileComponents();
+      imports: [
+        NewMessageFormComponent,
+        HttpClientTestingModule,
+        BrowserAnimationsModule,
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NewMessageFormComponent);
     component = fixture.componentInstance;

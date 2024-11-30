@@ -52,5 +52,6 @@ public class MessageService {
             throws ExecutionException, InterruptedException {
         return this.messageRepository.getMessages(fromId);
     }
+    
 
  }

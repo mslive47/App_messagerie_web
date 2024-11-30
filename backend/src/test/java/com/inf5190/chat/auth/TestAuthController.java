@@ -24,157 +24,157 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
-
 public class TestAuthController {
 
-    private final String username = "username";
-    private final String password = "pwd";
-    private final String hashedPassword = "hash";
-    private final FirestoreUserAccount userAccount =
-            new FirestoreUserAccount(this.username, this.hashedPassword);
+        private final String username = "username";
+        private final String password = "pwd";
+        private final String hashedPassword = "hash";
+        private final FirestoreUserAccount userAccount = new FirestoreUserAccount(this.username, this.hashedPassword);
 
-    private final LoginRequest loginRequest = new LoginRequest(this.username, this.password);
+        private final LoginRequest loginRequest = new LoginRequest(this.username, this.password);
 
-    @Mock
-    private SessionManager mockSessionManager;
+        @Mock
+        private SessionManager mockSessionManager;
 
-    @Mock
-    private UserAccountRepository mockAccountRepository;
+        @Mock
+        private UserAccountRepository mockAccountRepository;
 
-    @Mock
-    private PasswordEncoder mockPasswordEncoder;
+        @Mock
+        private PasswordEncoder mockPasswordEncoder;
 
-    @Mock
-    private AuthService mockAuthService;
+        @Mock
+        private AuthService mockAuthService;
 
-    private AuthController authController;
+        @Mock
+        private AuthController authController;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-        this.authController =
-                new AuthController(mockSessionManager, mockAuthService, mockPasswordEncoder);
-    }
+        @BeforeEach
+        public void setup() {
+                MockitoAnnotations.openMocks(this);
+                this.authController = new AuthController(mockSessionManager, mockAuthService, mockPasswordEncoder);
+        }
 
-    /**
-     * Test du login avec un utilisateur existant et le bon mot de passe.
-     */
-    @Test
-    public void loginExistingUserAccountWithCorrectPassword()
-            throws InterruptedException, ExecutionException {
-        final SessionData expectedSessionData = new SessionData(this.username);
-        final String expectedUsername = this.username;
+        /**
+         * Test du login avec un utilisateur existant et le bon mot de passe.
+         */
+        @Test
+        public void loginExistingUserAccountWithCorrectPassword()
+                        throws InterruptedException, ExecutionException {
+                final SessionData expectedSessionData = new SessionData(this.username);
+                final String expectedUsername = this.username;
 
-        // Mock de l'encodage du mot de passe  
-        when(this.mockPasswordEncoder.encode(loginRequest.password())).thenReturn(this.hashedPassword);
-        
-        // Simuler le comportement de la méthode addUser dans AuthService
-        doNothing().when(this.mockAuthService).addUser(loginRequest.username(), loginRequest.password(), this.hashedPassword);
+                // Mock de l'encodage du mot de passe
+                when(this.mockPasswordEncoder.encode(loginRequest.password())).thenReturn(this.hashedPassword);
 
-        // Mock de la récupération de l'utilisateur et de la validation du mot de passe
-        when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
-                .thenReturn(userAccount);
-        when(this.mockPasswordEncoder.matches(loginRequest.password(), this.hashedPassword))
-                .thenReturn(true);
-        when(this.mockSessionManager.addSession(expectedSessionData)).thenReturn(expectedUsername);
+                // Simuler le comportement de la méthode addUser dans AuthService
+                doNothing().when(this.mockAuthService).addUser(loginRequest.username(), loginRequest.password(),
+                                this.hashedPassword);
 
-        
+                // Mock de la récupération de l'utilisateur et de la validation du mot de passe
+                when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
+                                .thenReturn(userAccount);
+                when(this.mockPasswordEncoder.matches(loginRequest.password(), this.hashedPassword))
+                                .thenReturn(true);
+                when(this.mockSessionManager.addSession(expectedSessionData)).thenReturn(expectedUsername);
 
-        // Appel de la méthode login
-        ResponseEntity<LoginResponse> response = this.authController.login(loginRequest);
+                // Appel de la méthode login
+                ResponseEntity<LoginResponse> response = this.authController.login(loginRequest);
 
-        // Vérification de la réponse
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody().username()).isEqualTo(expectedUsername);
+                // Vérification de la réponse
+                assertThat(response.getStatusCode().value()).isEqualTo(200);
+                assertThat(response.getBody().username()).isEqualTo(expectedUsername);
 
+                // verify(this.mockPasswordEncoder, times(1)).matches(this.password,
+                // this.hashedPassword);
+                // Vérifier que la méthode addUser a été appelée une seule fois
+                verify(this.mockAuthService, times(1)).addUser(loginRequest.username(), loginRequest.password(),
+                                this.hashedPassword);
 
+                // verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
 
-      // verify(this.mockPasswordEncoder, times(1)).matches(this.password, this.hashedPassword);
-        // Vérifier que la méthode addUser a été appelée une seule fois
-        verify(this.mockAuthService, times(1)).addUser(loginRequest.username(), loginRequest.password(), this.hashedPassword);
+                verify(this.mockSessionManager, times(1)).addSession(expectedSessionData);
+        }
 
-       // verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
+        /**
+         * Test du login avec un nouvel utilisateur (compte inexistant).
+         */
+        @Test
+        public void loginNewUserAccount()
+                        throws InterruptedException, ExecutionException {
+                // Mock de l'absence d'utilisateur
+                when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
+                                .thenReturn(null);
 
-        verify(this.mockSessionManager, times(1)).addSession(expectedSessionData);
-    }
+                when(this.mockPasswordEncoder.encode(loginRequest.password()))
+                                .thenReturn(hashedPassword);
 
-    /**
-     * Test du login avec un nouvel utilisateur (compte inexistant).
-     */
-    @Test
-    public void loginNewUserAccount()
-            throws InterruptedException, ExecutionException {
-        // Mock de l'absence d'utilisateur
-        when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
-                .thenReturn(null);
+                // Simuler le comportement de la méthode addUser dans AuthService
+                doNothing().when(this.mockAuthService).addUser(loginRequest.username(), loginRequest.password(),
+                                this.hashedPassword);
 
-        when(this.mockPasswordEncoder.encode(loginRequest.password()))
-                .thenReturn(hashedPassword);
+                // Appel de la méthode login
+                ResponseEntity<LoginResponse> response = this.authController.login(loginRequest);
 
-         // Simuler le comportement de la méthode addUser dans AuthService
-        doNothing().when(this.mockAuthService).addUser(loginRequest.username(), loginRequest.password(), this.hashedPassword);
+                // Vérification de la réponse
+                assertThat(response.getStatusCode().value()).isEqualTo(200);
+                assertThat(response.getBody().username()).isEqualTo(loginRequest.username());
 
-        // Appel de la méthode login
-        ResponseEntity<LoginResponse> response = this.authController.login(loginRequest);
+                // Vérification des appels aux mocks
+                // verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
+                verify(this.mockAuthService, times(1)).addUser(loginRequest.username(), loginRequest.password(),
+                                this.hashedPassword);
+                verify(this.mockPasswordEncoder, times(1)).encode(this.password);
+        }
 
-        // Vérification de la réponse
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody().username()).isEqualTo(loginRequest.username());
+        /**
+         * Test du login avec un utilisateur existant et un mot de passe incorrect.
+         */
+        @Test
+        public void loginExistingUserAccountWithIncorrectPassword()
+                        throws InterruptedException, ExecutionException {
 
-        // Vérification des appels aux mocks
-        //verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
-        verify(this.mockAuthService, times(1)).addUser(loginRequest.username(), loginRequest.password(), this.hashedPassword);
-        verify(this.mockPasswordEncoder, times(1)).encode(this.password);
-    }
+                // Mock de l'encodage du mot de passe
+                when(this.mockPasswordEncoder.encode(loginRequest.password())).thenReturn(this.hashedPassword);
 
-    /**
-     * Test du login avec un utilisateur existant et un mot de passe incorrect.
-     */
-      @Test
-      public void loginExistingUserAccountWithIncorrectPassword()
-            throws InterruptedException, ExecutionException {
+                // Mock de l'utilisateur existant
+                when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
+                                .thenReturn(userAccount);
 
-                 // Mock de l'encodage du mot de passe  
-        when(this.mockPasswordEncoder.encode(loginRequest.password())).thenReturn(this.hashedPassword);
+                // Mock du mot de passe incorrect
+                when(this.mockPasswordEncoder.matches(loginRequest.password(), this.hashedPassword))
+                                .thenReturn(false);
 
-        // Mock de l'utilisateur existant
-        when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
-                .thenReturn(userAccount);
-        
-        // Mock du mot de passe incorrect
-        when(this.mockPasswordEncoder.matches(loginRequest.password(), this.hashedPassword))
-                .thenReturn(false);
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                                () -> this.authController.login(loginRequest));
+                assertThat(exception.getStatusCode()).isEqualTo(403);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        this.authController.login(loginRequest));
-        assertThat(exception.getStatusCode()).isEqualTo(403);
+                // Vérification des appels aux mocks
+                verify(this.mockAuthService, times(1)).addUser(loginRequest.username(), loginRequest.password(),
+                                this.hashedPassword);
+                // verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
+                verify(this.mockPasswordEncoder, times(1)).matches(this.password, this.hashedPassword);
+        }
 
-        // Vérification des appels aux mocks
-        verify(this.mockAuthService, times(1)).addUser(loginRequest.username(), loginRequest.password(), this.hashedPassword);
-       // verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
-        verify(this.mockPasswordEncoder, times(1)).matches(this.password, this.hashedPassword);
-    }
+        /**
+         * Test d'une exception inattendue lors de l'accès à Firestore.
+         */
+        @Test
+        public void loginWithFirestoreException()
+                        throws InterruptedException, ExecutionException {
+                // Simuler une exception lors de l'accès au repository
+                when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
+                                .thenThrow(new RuntimeException("Firestore connection error"));
 
-    /**
-     * Test d'une exception inattendue lors de l'accès à Firestore.
-     */
-     @Test
-    public void loginWithFirestoreException()
-            throws InterruptedException, ExecutionException {
-        // Simuler une exception lors de l'accès au repository
-        when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
-                .thenThrow(new RuntimeException("Firestore connection error"));
+                // Appel de la méthode login et vérification de l'exception
+                assertThrows(ResponseStatusException.class, () -> {
+                        this.authController.login(loginRequest);
+                });
 
-        // Appel de la méthode login et vérification de l'exception
-        assertThrows(ResponseStatusException.class, () -> {
-            this.authController.login(loginRequest);
-        });
+                ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                                () -> this.authController.login(loginRequest));
+                assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 
-         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        this.authController.login(loginRequest));
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-
-        // Vérification des appels aux mocks
-        verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);   
-    } 
+                // Vérification des appels aux mocks
+                verify(this.mockAccountRepository, times(1)).getUserAccount(this.username);
+        }
 }
