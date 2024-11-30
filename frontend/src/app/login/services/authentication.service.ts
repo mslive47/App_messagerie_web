@@ -24,7 +24,6 @@ export class AuthenticationService {
   async login(
     userCredentials: UserCredentials
   ): Promise<{ success: boolean; username?: string; error?: string }> {
-    // À faire
     try {
       const loginResponse = await firstValueFrom(
         this.httpClient.post<LoginResponse>(
@@ -33,7 +32,7 @@ export class AuthenticationService {
           { observe: 'response' } 
         )
       );
-      //console.log(loginResponse);
+      
       const jwtToken = loginResponse.headers.get('Authorization')?.replace('Bearer ', '');
       if (jwtToken) {
         localStorage.setItem(AuthenticationService.TOKEN_KEY, jwtToken);
@@ -55,7 +54,7 @@ export class AuthenticationService {
 
   /* Cette methode permet de supprimer un utilisateur */
   async logout() {
-    // À faire
+  
     try {
       const headers = new HttpHeaders().set('Authorization', `Bearer${this.jwtToken()}`);
       await firstValueFrom(
@@ -95,6 +94,6 @@ export class AuthenticationService {
   }
 
   resetLogoutState() {
-    this.logoutState = false; // Réinitialise l'état de déconnexion.
+    this.logoutState = false; 
   }
 }

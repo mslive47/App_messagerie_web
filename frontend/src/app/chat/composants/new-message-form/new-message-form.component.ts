@@ -42,7 +42,6 @@ export class NewMessageFormComponent {
       this.messageForm.value.msg
     ) {
       const text = this.messageForm.value.msg;
-      //await this.processFile();
       console.log(this.imageData?.data);
       console.log(this.imageData?.type);
       if (text || this.imageData) {
@@ -68,7 +67,6 @@ export class NewMessageFormComponent {
   fileChanged(event: Event) {
     const input = event.target as HTMLInputElement;
     this.file = input.files ? input.files[0] : null;
-    // Déclenche `processFile` immédiatement après le changement de fichier
     this.processFile();
   }  
   

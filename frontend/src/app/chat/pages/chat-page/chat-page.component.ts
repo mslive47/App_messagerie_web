@@ -44,7 +44,6 @@ export class ChatPageComponent {
 
   async handleLogout() {
     await this.onLogout();
-    //this.router.navigate(['/login']);
   }
 
 }

@@ -43,11 +43,8 @@ export class LoginFormComponent {
         this.loginError = null;
         this.loginForm.reset();
         this.loginSuccess = true;
-      } //else {
-        //this.loginError = response.error || 'An unknown error occurred';
-     // }
+      } 
     } catch (error) {
-      //console.log('MEssage: ${error.status === 403}');
       if (error instanceof HttpErrorResponse) {
         if (error.status === 403) {
           this.loginError = 'Mot de passe invalide';

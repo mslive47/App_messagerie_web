@@ -119,7 +119,6 @@ export class MessagesService {
     return header;
   }
 
-  // Émettre l'événement en cas d'erreur 403
   private emitUnauthorizedEvent() {
     this.unauthorizedEvent.next();
   }

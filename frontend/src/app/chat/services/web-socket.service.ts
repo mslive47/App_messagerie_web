@@ -15,22 +15,6 @@ export class WebSocketService {
 
   private events = new Subject<WebSocketEvent>();
 
- /* public connect(): Observable<WebSocketEvent> {
-    this.ws = new WebSocket(`${environment.wsUrl}/notifications`);
-    const events = new Subject<WebSocketEvent>();
-
-    this.ws.onmessage = () => events.next("notif");
-    this.ws.onclose = () => events.complete();
-    this.ws.onerror = () => events.error("error");
-
-    return events.asObservable();
-  }
-
-  public disconnect() {
-    this.ws?.close();
-    this.ws = null
-  }*/
-
     /** Méthode pour se connecter au WebSocket */
   public connect(): Observable<WebSocketEvent> {
     if (this.ws) {
@@ -57,7 +41,7 @@ export class WebSocketService {
 
     this.ws.onopen = () => {
       console.log('WebSocket connected');
-      this.events.next("notif"); // Indiquer que la connexion est établie
+      this.events.next("notif"); 
     };
 
     this.ws.onmessage = () => this.events.next("notif");
@@ -66,14 +50,14 @@ export class WebSocketService {
       console.warn('WebSocket disconnected');
       this.events.complete();
       if (!this.isManuallyDisconnected) {
-        this.scheduleReconnect(); // Planifier une tentative de reconnexion
+        this.scheduleReconnect(); 
       }
     };
 
     this.ws.onerror = (error) => {
       console.error('WebSocket error', error);
       this.events.error('error');
-      this.ws?.close(); // Forcer la fermeture pour déclencher la reconnexion
+      this.ws?.close(); 
     };
   }
 

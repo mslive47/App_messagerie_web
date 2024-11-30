@@ -125,22 +125,16 @@ public class TestAuthController {
      */
     @Test
     public void loginWithFirestoreException() throws ExecutionException, InterruptedException {
-        // Simule une exception inattendue lors de l'accès à Firestore
         when(mockAccountRepository.getUserAccount(username))
                 .thenThrow(new ExecutionException("Erreur Firestore simulée", new RuntimeException()));
 
-        // Vérifie que l'exception est capturée et propagée par le contrôleur
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             authController.login(loginRequest);
         });
 
-        // Assertions sur l'exception levée
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(exception.getReason()).isEqualTo("Erreur inattendue lors de la connexion.");
-
-        // Vérifie que la méthode getUserAccount a bien été appelée une fois
         verify(mockAccountRepository, times(1)).getUserAccount(username);
     }
-
 
 }
