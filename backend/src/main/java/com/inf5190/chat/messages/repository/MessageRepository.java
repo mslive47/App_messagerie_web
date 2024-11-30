@@ -69,6 +69,8 @@ public class MessageRepository {
             DocumentSnapshot fromSnapshot = messagesCollection.document(fromId).get().get();
             if (fromSnapshot.exists()) {
                 query = query.startAfter(fromSnapshot);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "id message introuvable");
             }
         }
 

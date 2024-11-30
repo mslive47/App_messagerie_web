@@ -11,7 +11,6 @@ export const loginPageGuard: CanActivateFn = (
     
   const authService = inject(AuthenticationService);
   const router = inject(Router);
-  //const connection = authService.isconnected();
 
   if (authService.logoutState) {
     authService.resetLogoutState();
@@ -20,10 +19,7 @@ export const loginPageGuard: CanActivateFn = (
 
   if (authService.isconnected()) {
     return router.parseUrl('/chat');    
-  } //else {
-    //return router.parseUrl('/login');
-    //return false;
- // }
+  } 
 
   return true;
 };

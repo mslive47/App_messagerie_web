@@ -32,7 +32,6 @@ describe('AuthenticationService', () => {
     beforeEach(() => {
       localStorage.clear();
       httpTestingController = TestBed.inject(HttpTestingController);
-      //service = TestBed.inject(AuthenticationService);
     });
 
     it('should call POST with login data to auth/login', async () => {
@@ -45,12 +44,10 @@ describe('AuthenticationService', () => {
       expect(req.request.body).toEqual(loginData);
       req.flush({ username: loginData.username });
 
-      // wait for the login to complete
       await loginPromise;
     });
 
     it('should store and emit the username', async () => {
-      // À compléter
       const loginPromise = service.login(loginData);
 
       const req = httpTestingController.expectOne(
@@ -63,11 +60,9 @@ describe('AuthenticationService', () => {
 
       await loginPromise;
 
-      // Check localStorage values
       expect(localStorage.getItem(AuthenticationService.KEY)).toBe(loginData.username);
       expect(localStorage.getItem(AuthenticationService.TOKEN_KEY)).toBe('test-jwt-token');
 
-      // Check service signals
       expect(service.getUsername()()).toBe(loginData.username);
       expect(service.getToken()).toBe('test-jwt-token');
 
@@ -77,13 +72,10 @@ describe('AuthenticationService', () => {
   describe('on logout', () => {
     beforeEach(() => {
       localStorage.setItem('username', loginData.username);
-
       httpTestingController = TestBed.inject(HttpTestingController);
-      //service = TestBed.inject(AuthenticationService);
     });
 
     it('should call POST with login data to auth/logout', async () => {
-      // À compléter
       service['jwtToken'].set(' test-jwt-token');
       const logoutPromise = service.logout();
 
@@ -98,7 +90,6 @@ describe('AuthenticationService', () => {
     });
 
     it('should remove the username from the service and local storage', async () => {
-      // À compléter
       const logoutPromise = service.logout();
 
       const req = httpTestingController.expectOne(
@@ -108,11 +99,9 @@ describe('AuthenticationService', () => {
 
       await logoutPromise;
 
-      // Check localStorage values
       expect(localStorage.getItem(AuthenticationService.KEY)).toBeNull();
       expect(localStorage.getItem(AuthenticationService.TOKEN_KEY)).toBeNull();
 
-      // Check service signals
       expect(service.getUsername()()).toBeNull();
       expect(service.getToken()).toBeNull();
     });

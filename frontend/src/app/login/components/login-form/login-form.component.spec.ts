@@ -60,11 +60,9 @@ describe('LoginFormComponent', () => {
     const passwordInput = testHelper.getInput('password-input');
     const submitButton = testHelper.getButton('submit-button');
 
-    //testHelper.writeInInput(usernameInput, '');
-    // Simulez un blur sans remplir le champ
-    usernameInput.value = ''; // Champ vide
-    usernameInput.dispatchEvent(new Event('input')); // Simule la saisie
-    usernameInput.dispatchEvent(new Event('blur'));  // Simule le blur
+    usernameInput.value = ''; 
+    usernameInput.dispatchEvent(new Event('input')); 
+    usernameInput.dispatchEvent(new Event('blur'));  
     testHelper.writeInInput(passwordInput, 'abc');
     fixture.detectChanges();
 
@@ -81,9 +79,9 @@ describe('LoginFormComponent', () => {
     const usernameInput = testHelper.getInput('username-input');
     const submitButton = testHelper.getButton('submit-button');
 
-    passwordInput.value = ''; // Champ vide
-    passwordInput.dispatchEvent(new Event('input')); // Simule la saisie
-    passwordInput.dispatchEvent(new Event('blur'));  // Simule le blur
+    passwordInput.value = ''; 
+    passwordInput.dispatchEvent(new Event('input')); 
+    passwordInput.dispatchEvent(new Event('blur'));  
     testHelper.writeInInput(usernameInput, 'james');
     fixture.detectChanges();
 
