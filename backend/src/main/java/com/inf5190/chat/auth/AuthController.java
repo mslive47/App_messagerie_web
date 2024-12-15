@@ -88,4 +88,9 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur inattendue lors de la déconnexion.");
         }
     }
+
+    @GetMapping("/")
+    public String healthCheck() {
+        return "Backend is running!";
+    }
 }

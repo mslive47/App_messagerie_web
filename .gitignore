@@ -44,3 +44,5 @@ Thumbs.db
 .gradle/
 build/
 firebase-key.json
+firebase-production-key.json
+firebase-production-key-1.json
