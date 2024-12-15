@@ -13,6 +13,8 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.cloud.StorageClient;
 import com.inf5190.chat.messages.model.NewMessageRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import com.inf5190.chat.messages.model.Message;
@@ -36,6 +38,11 @@ import java.util.concurrent.ExecutionException;
  */
 @Repository
 public class MessageRepository {
+
+    @Autowired
+    @Qualifier("storageBucketName")
+    private String storageBucketName;
+
     //private final List<Message> messages = new ArrayList<Message>();
     private final AtomicLong idGenerator = new AtomicLong(0);
 
@@ -136,7 +143,7 @@ public class MessageRepository {
         String path = String.format("images/%s.%s", messageId, imageType);
         Bucket bucket = StorageClient.getInstance().bucket();
         bucket.create(path, imageBytes, Bucket.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PUBLIC_READ));
-        return String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME, path);
+        return String.format("https://storage.googleapis.com/%s/%s", storageBucketName, path);
     }
 
 
