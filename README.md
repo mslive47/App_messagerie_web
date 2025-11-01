@@ -2,6 +2,7 @@
 
 ## Aperçu du projet
 ChatApp est une application de messagerie instantanée full-stack développée avec :
+
 **Frontend : Angular 18**
 ** Backend : Spring Boot 3**
 **Base de données & stockage : Firebase (Firestore & Cloud Storage)**
